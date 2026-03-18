@@ -3,13 +3,10 @@ venv/
  
 # Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
 .Python
  
 # Environment variables
-#.env
+.env
 .env.local
  
 # IDE
