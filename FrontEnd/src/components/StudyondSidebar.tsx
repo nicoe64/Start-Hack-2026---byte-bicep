@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Home, MessageSquare, FolderOpen, Compass, Briefcase, Users, Building2, Settings, ChevronRight } from "lucide-react";
+import { Home, MessageSquare, FolderOpen, Compass, Briefcase, Users, Building2, Settings, ChevronRight, Sun, Moon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/hooks/use-theme";
 
 interface NavItem {
   label: string;
@@ -68,13 +70,18 @@ export function StudyondSidebar() {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Settings */}
+      {/* Settings + Theme toggle */}
       <div className="border-t border-border/40 pt-4">
-        <SidebarItem
-          item={{ label: "Settings", icon: Settings }}
-          isActive={activeItem === "Settings"}
-          onClick={() => setActiveItem("Settings")}
-        />
+        <div className="flex items-center gap-1">
+          <div className="flex-1">
+            <SidebarItem
+              item={{ label: "Settings", icon: Settings }}
+              isActive={activeItem === "Settings"}
+              onClick={() => setActiveItem("Settings")}
+            />
+          </div>
+          <ThemeToggle />
+        </div>
 
         {/* User */}
         <div className="mt-6 flex items-center gap-3">
@@ -114,6 +121,35 @@ function SidebarItem({
       {item.hasSubmenu && (
         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
       )}
+    </button>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+      aria-label="Toggle theme"
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={theme}
+          initial={{ rotate: -90, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          exit={{ rotate: 90, opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="flex items-center justify-center"
+        >
+          {theme === "light" ? (
+            <Moon className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Sun className="h-4 w-4" strokeWidth={1.5} />
+          )}
+        </motion.span>
+      </AnimatePresence>
     </button>
   );
 }

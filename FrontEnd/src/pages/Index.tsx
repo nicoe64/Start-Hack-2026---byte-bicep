@@ -1,83 +1,85 @@
+import { useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import { StudyondSidebar } from "@/components/StudyondSidebar";
 import { AIConciergeDrawer } from "@/components/AIConciergeDrawer";
-import { TopicCard } from "@/components/TopicCard";
-import topicAiUrban from "@/assets/topic-ai-urban.jpg";
-import topicQuantum from "@/assets/topic-quantum.jpg";
-import topicLogistics from "@/assets/topic-logistics.jpg";
-import topicNeural from "@/assets/topic-neural.jpg";
-
-const topics = [
-  {
-    title: "AI in Urban Planning",
-    category: "Doctoral Thesis",
-    author: "Dr. Aris Thorne",
-    image: topicAiUrban,
-  },
-  {
-    title: "Quantum Cryptography",
-    category: "Corporate Research",
-    author: "Siemens AG",
-    image: topicQuantum,
-  },
-  {
-    title: "Sustainable Logistics",
-    category: "Master Thesis",
-    author: "Prof. Elena Voss",
-    image: topicLogistics,
-  },
-  {
-    title: "Neural Architecture Search",
-    category: "PhD Research",
-    author: "Dr. Jonas Kramer",
-    image: topicNeural,
-  },
-];
+import { GraphView } from "@/components/graph/GraphView";
+import { NodeDetailDialog } from "@/components/graph/NodeDetailDialog";
+import { mockBackendResponse } from "@/components/graph/mockGraphData";
 
 const Index = () => {
+  const [activePathId, setActivePathId] = useState("path-1");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogNodeData, setDialogNodeData] = useState<Record<string, unknown> | null>(null);
+
+  const handleExpandNode = useCallback((nodeData: Record<string, unknown>) => {
+    setDialogNodeData(nodeData);
+    setDialogOpen(true);
+  }, []);
+
+  const handleNodeClick = useCallback((nodeId: string, nodeData: Record<string, unknown>) => {
+    console.log("Node clicked:", nodeId, nodeData);
+  }, []);
+
+  const paths = mockBackendResponse.paths;
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background font-sans text-foreground">
-      {/* Left Sidebar */}
       <StudyondSidebar />
 
-      {/* Center Content Stage */}
-      <main className="relative flex-1 overflow-y-auto px-12 py-16 lg:px-16 lg:py-20">
-        {/* Editorial Header */}
-        <motion.header
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-20 max-w-2xl"
-        >
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-            Discovery
-          </span>
-          <h1 className="mt-4 font-serif text-5xl leading-editorial tracking-editorial text-foreground lg:text-7xl">
-            The future of{" "}
-            <br />
-            <span className="italic text-foreground/70">Sustainable Logistics.</span>
-          </h1>
-          <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
-            Explore curated research topics, connect with supervisors, and discover
-            opportunities that align with your academic ambitions.
-          </p>
-        </motion.header>
+      <main className="relative flex-1 flex flex-col overflow-hidden">
+        <div className="relative min-h-0 flex-1">
+          {/* Compact overlay header + path tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="pointer-events-none absolute left-6 top-5 z-10"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">
+              Topic Discovery
+            </span>
+            <h1 className="mt-1 font-serif text-2xl leading-tight tracking-editorial text-foreground lg:text-3xl">
+              Your research <span className="italic text-foreground/70">pathways.</span>
+            </h1>
+            <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-muted-foreground">
+              Explore matching supervisors and industry partners.
+            </p>
 
-        {/* Topic Cards Grid - asymmetric layout */}
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
-          <TopicCard {...topics[0]} delay={0.1} />
-          <div className="md:mt-20">
-            <TopicCard {...topics[1]} delay={0.2} />
-          </div>
-          <TopicCard {...topics[2]} delay={0.3} />
-          <div className="md:mt-20">
-            <TopicCard {...topics[3]} delay={0.4} />
-          </div>
+            {/* Path toggle buttons */}
+            <div className="pointer-events-auto mt-3 flex gap-2">
+              {paths.map((path) => (
+                <button
+                  key={path.id}
+                  onClick={() => setActivePathId(path.id)}
+                  className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                    activePathId === path.id
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {path.label}
+                  <span className="ml-1.5 opacity-60">{Math.round(path.confidence * 100)}%</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          <GraphView
+            backendData={mockBackendResponse}
+            activePathId={activePathId}
+            onNodeClick={handleNodeClick}
+            onExpandNode={handleExpandNode}
+          />
         </div>
       </main>
 
-      {/* Right AI Drawer */}
       <AIConciergeDrawer />
+
+      <NodeDetailDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        nodeData={dialogNodeData}
+      />
     </div>
   );
 };
