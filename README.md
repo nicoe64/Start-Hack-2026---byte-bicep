@@ -9,6 +9,21 @@ source venv/bin/activate        # macOS / Linux
 pip install -r requirements.txt
 ```
 
+
+
+## Starting Frontend
+```bash
+Install: https://nodejs.org/en/download
+You have to open a new console and test with | npm -version
+cd Frontend
+npm install
+npm run dev
+```
+## Starting Backend
+```bash
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
 ## Git
 
 **Push**
