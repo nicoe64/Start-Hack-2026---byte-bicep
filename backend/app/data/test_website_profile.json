@@ -1,0 +1,17 @@
+{
+  "name": "Felix Boyke",
+  "email": "feb3560@thi.de",
+  "university": "Technische Hochschule Ingolstadt",
+  "university_id": "uni-10",
+  "degree_level": "BSc",
+  "study_program": "Künstliche Intelligenz",
+  "study_program_id": "prog-28",
+  "field_interests": [
+    "Informatik & Wirtschaftsinformatik",
+    "Naturwissenschaften",
+    "Mathematik & Statistik"
+  ],
+  "skills": [],
+  "about": "",
+  "end_date": "2027-02"
+}
