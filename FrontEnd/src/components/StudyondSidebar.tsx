@@ -1,17 +1,23 @@
+// src/components/StudyondSidebar.tsx
 import { useState } from "react";
-import { Home, MessageSquare, FolderOpen, Compass, Briefcase, Users, Building2, Settings, ChevronRight, Sun, Moon } from "lucide-react";
+import {
+  Home, MessageSquare, FolderOpen, Compass, Briefcase,
+  Users, Building2, Settings, ChevronRight, Sun, Moon, UserCircle2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/hooks/use-theme";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface NavItem {
   label: string;
   icon: React.ElementType;
-  active?: boolean;
   hasSubmenu?: boolean;
+  route?: string;
 }
 
 const personalItems: NavItem[] = [
-  { label: "Home", icon: Home, active: true },
+  { label: "Home", icon: Home, route: "/" },
+  { label: "Profile", icon: UserCircle2, route: "/profile" },
   { label: "Messages", icon: MessageSquare },
   { label: "My Projects", icon: FolderOpen },
 ];
@@ -23,8 +29,25 @@ const discoverItems: NavItem[] = [
   { label: "Organizations", icon: Building2, hasSubmenu: true },
 ];
 
-export function StudyondSidebar() {
-  const [activeItem, setActiveItem] = useState("Home");
+interface StudyondSidebarProps {
+  activePage?: string;
+}
+
+export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentRoute = location.pathname;
+
+  const handleItemClick = (item: NavItem) => {
+    if (item.route) navigate(item.route);
+  };
+
+  const isActive = (item: NavItem) => {
+    if (item.route) return currentRoute === item.route;
+    if (activePage) return activePage === item.label;
+    return false;
+  };
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border/50 py-10 pl-8 pr-4">
@@ -43,8 +66,8 @@ export function StudyondSidebar() {
             <SidebarItem
               key={item.label}
               item={item}
-              isActive={activeItem === item.label}
-              onClick={() => setActiveItem(item.label)}
+              isActive={isActive(item)}
+              onClick={() => handleItemClick(item)}
             />
           ))}
         </nav>
@@ -60,30 +83,28 @@ export function StudyondSidebar() {
             <SidebarItem
               key={item.label}
               item={item}
-              isActive={activeItem === item.label}
-              onClick={() => setActiveItem(item.label)}
+              isActive={isActive(item)}
+              onClick={() => handleItemClick(item)}
             />
           ))}
         </nav>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Settings + Theme toggle */}
+      {/* Settings + Theme */}
       <div className="border-t border-border/40 pt-4">
         <div className="flex items-center gap-1">
           <div className="flex-1">
             <SidebarItem
               item={{ label: "Settings", icon: Settings }}
-              isActive={activeItem === "Settings"}
-              onClick={() => setActiveItem("Settings")}
+              isActive={isActive({ label: "Settings", icon: Settings })}
+              onClick={() => {}}
             />
           </div>
           <ThemeToggle />
         </div>
 
-        {/* User */}
         <div className="mt-6 flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
             NE
@@ -127,7 +148,6 @@ function SidebarItem({
 
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
-
   return (
     <button
       onClick={toggleTheme}
@@ -143,11 +163,10 @@ function ThemeToggle() {
           transition={{ duration: 0.15 }}
           className="flex items-center justify-center"
         >
-          {theme === "light" ? (
-            <Moon className="h-4 w-4" strokeWidth={1.5} />
-          ) : (
-            <Sun className="h-4 w-4" strokeWidth={1.5} />
-          )}
+          {theme === "light"
+            ? <Moon className="h-4 w-4" strokeWidth={1.5} />
+            : <Sun className="h-4 w-4" strokeWidth={1.5} />
+          }
         </motion.span>
       </AnimatePresence>
     </button>

@@ -24,26 +24,28 @@ export interface SelectedNodeSummary {
 
 export type ChatMode = "advisor" | "proposal";
 
-const Index = () => {
+interface IndexProps {
+  sharedGraphData: BackendGraphResponse | null;
+  onGraphDataChange: (data: BackendGraphResponse | null) => void;
+  onEnrichedProfileChange: (profile: Record<string, unknown>) => void;
+}
+
+const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: IndexProps) => {
   const [activePathId, setActivePathId] = useState("path-1");
 
-  // Detail dialog (info button)
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogNodeData, setDialogNodeData] = useState<Record<string, unknown> | null>(null);
 
-  // Multi-select (green nodes)
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
   const [selectedNodeSummaries, setSelectedNodeSummaries] = useState<SelectedNodeSummary[]>([]);
 
-  // Proposal panel
   const [proposalOpen, setProposalOpen] = useState(false);
   const [proposalFields, setProposalFields] = useState<ProposalField[]>(buildDefaultFields());
   const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
 
-  // Chat
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [chatMode, setChatMode] = useState<ChatMode>("advisor");
-  const [graphData, setGraphData] = useState<BackendGraphResponse | null>(null);
+  const [graphData, setGraphData] = useState<BackendGraphResponse | null>(sharedGraphData);
   const [questionCount, setQuestionCount] = useState(0);
   const [maxQuestions] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +69,13 @@ const Index = () => {
     fetchWelcome();
   }, []);
 
-  // Node click → toggle green selection
+  // Sync graphData up to App
+  const updateGraphData = useCallback((data: BackendGraphResponse | null) => {
+    setGraphData(data);
+    onGraphDataChange(data);
+  }, [onGraphDataChange]);
+
+  // Node click → toggle green
   const handleNodeClick = useCallback((nodeId: string, nodeData: Record<string, unknown>) => {
     setSelectedNodeIds((prev) => {
       const next = new Set(prev);
@@ -89,13 +97,13 @@ const Index = () => {
     });
   }, []);
 
-  // Info button → detail dialog only
+  // Info button → detail dialog
   const handleExpandNode = useCallback((nodeData: Record<string, unknown>) => {
     setDialogNodeData(nodeData);
     setDialogOpen(true);
   }, []);
 
-  // Open proposal panel
+  // Open proposal
   const openProposal = useCallback(async (withNodes: boolean) => {
     setProposalOpen(true);
     setChatMode("proposal");
@@ -105,7 +113,6 @@ const Index = () => {
       const nodeContext = selectedNodeSummaries
         .map((n) => `[${n.type.toUpperCase()}] ${n.label}: ${n.reasoning ?? ""}`)
         .join("\n");
-
       try {
         const res = await sendMessage(
           SESSION_ID,
@@ -124,11 +131,8 @@ const Index = () => {
           return f;
         }));
         setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
-      } catch {
-        // silent
-      } finally {
-        setIsGeneratingProposal(false);
-      }
+      } catch { /* silent */ }
+      finally { setIsGeneratingProposal(false); }
     } else {
       setMessages((prev) => [...prev, {
         role: "assistant",
@@ -142,7 +146,6 @@ const Index = () => {
     setChatMode("advisor");
   }, []);
 
-  // AI tip for a specific field
   const handleAIFieldHelp = useCallback(async (fieldId: string, currentValue: string) => {
     const field = proposalFields.find((f) => f.id === fieldId);
     if (!field) return;
@@ -157,12 +160,9 @@ const Index = () => {
       setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "Couldn't get AI help right now." }]);
-    } finally {
-      setIsLoading(false);
-    }
+    } finally { setIsLoading(false); }
   }, [proposalFields, selectedNodeIds, selectedNodeSummaries]);
 
-  // Main send
   const handleSendMessage = useCallback(async (text: string, nodeIds: string[] = []) => {
     if (!text.trim() || isLoading) return;
     const ids = nodeIds.length > 0 ? nodeIds : Array.from(selectedNodeIds);
@@ -183,16 +183,20 @@ const Index = () => {
       const res: ChatResponse = await sendMessage(SESSION_ID, fullText, ids);
       setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
       setQuestionCount(res.question_count);
+
+      // Sync enriched profile up
+      if (res.enriched_profile && Object.keys(res.enriched_profile).length > 0) {
+        onEnrichedProfileChange(res.enriched_profile);
+      }
+
       if (res.graph && res.graph.paths && res.graph.paths.length > 0) {
-        setGraphData(res.graph);
+        updateGraphData(res.graph);
         setActivePathId(res.graph.paths[0].id);
       }
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, selectedNodeIds, chatMode]);
+    } finally { setIsLoading(false); }
+  }, [isLoading, selectedNodeIds, chatMode, updateGraphData, onEnrichedProfileChange]);
 
   const handleFieldChange = useCallback((fieldId: string, value: string) => {
     setProposalFields((prev) => prev.map((f) => (f.id === fieldId ? { ...f, value } : f)));
@@ -260,7 +264,7 @@ const Index = () => {
             )}
           </motion.div>
 
-          {/* Standalone write proposal button */}
+          {/* Write proposal button */}
           {graphData && !proposalOpen && (
             <div className="pointer-events-auto absolute right-6 top-5 z-10">
               <button
@@ -273,7 +277,7 @@ const Index = () => {
             </div>
           )}
 
-          {/* Graph or empty state */}
+          {/* Graph or empty */}
           {graphData ? (
             <GraphView
               backendData={graphData}
