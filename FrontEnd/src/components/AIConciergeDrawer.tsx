@@ -1,7 +1,8 @@
 // src/components/AIConciergeDrawer.tsx
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { ArrowUp, Sparkles, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUp, Sparkles, Loader2, X, Building2, User, FileText } from "lucide-react";
+import type { SelectedNode } from "@/pages/Index";
 
 interface Message {
   role: string;
@@ -10,11 +11,20 @@ interface Message {
 
 interface AIConciergeDrawerProps {
   messages: Message[];
-  onSendMessage: (text: string) => void;
+  onSendMessage: (text: string, nodeIds?: string[]) => void;
   isLoading: boolean;
   questionCount: number;
   maxQuestions: number;
+  selectedNode: SelectedNode | null;
+  onClearSelectedNode: () => void;
 }
+
+const nodeTypeIcon: Record<string, React.ElementType> = {
+  company: Building2,
+  supervisor: User,
+  topic: FileText,
+  expert: Sparkles,
+};
 
 export function AIConciergeDrawer({
   messages,
@@ -22,19 +32,21 @@ export function AIConciergeDrawer({
   isLoading,
   questionCount,
   maxQuestions,
+  selectedNode,
+  onClearSelectedNode,
 }: AIConciergeDrawerProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSubmit = () => {
     if (!input.trim() || isLoading) return;
-    onSendMessage(input.trim());
+    const nodeIds = selectedNode ? [selectedNode.id] : [];
+    onSendMessage(input.trim(), nodeIds);
     setInput("");
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -47,6 +59,8 @@ export function AIConciergeDrawer({
       handleSubmit();
     }
   };
+
+  const NodeIcon = selectedNode ? (nodeTypeIcon[selectedNode.type] ?? Sparkles) : Sparkles;
 
   return (
     <aside className="relative flex h-full w-[380px] flex-col overflow-hidden border-l border-border/30">
@@ -107,6 +121,31 @@ export function AIConciergeDrawer({
         )}
       </div>
 
+      {/* Selected node context badge */}
+      <AnimatePresence>
+        {selectedNode && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.2 }}
+            className="mx-6 mb-2 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2"
+          >
+            <NodeIcon className="h-3.5 w-3.5 text-primary shrink-0" strokeWidth={1.5} />
+            <span className="flex-1 text-xs text-primary font-medium truncate">
+              Context: {selectedNode.label}
+            </span>
+            <button
+              onClick={onClearSelectedNode}
+              className="shrink-0 text-primary/50 hover:text-primary transition-colors"
+              aria-label="Clear selection"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Input */}
       <div className="border-t border-border/30 px-6 py-4">
         <div className="flex items-end gap-2 rounded-2xl border border-border/50 bg-card/80 px-4 py-3">
@@ -115,7 +154,11 @@ export function AIConciergeDrawer({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Tell me about your thesis interests..."
+            placeholder={
+              selectedNode
+                ? `Ask about ${selectedNode.label}...`
+                : "Tell me about your thesis interests..."
+            }
             rows={1}
             className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
             style={{ maxHeight: "120px" }}
@@ -128,6 +171,11 @@ export function AIConciergeDrawer({
             <ArrowUp className="h-4 w-4" />
           </button>
         </div>
+        {selectedNode && (
+          <p className="mt-1.5 text-center text-[10px] text-muted-foreground/60">
+            Your message will include context about {selectedNode.label}
+          </p>
+        )}
       </div>
     </aside>
   );

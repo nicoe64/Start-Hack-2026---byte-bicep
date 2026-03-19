@@ -1,10 +1,5 @@
-"""
-intent_router_node.py — Intent erkennen.
-Logik: 3 Fragen → automatisch generieren. User kann auch jederzeit manuell triggern.
-"""
 from typing import ClassVar
 from app.agents.state import IntentRouterOutput
-
 
 GENERATE_KEYWORDS = [
     "generier", "zeig mir pfade", "zeig mir optionen", "pfade",
@@ -21,7 +16,6 @@ REFINE_KEYWORDS = [
 
 MAX_QUESTIONS = 3
 
-
 class IntentRouterNode:
     name: ClassVar[str] = "IntentRouterNode"
 
@@ -36,7 +30,7 @@ class IntentRouterNode:
         elif any(kw in message for kw in GENERATE_KEYWORDS):
             intent = "generate"
         elif question_count >= MAX_QUESTIONS:
-            intent = "generate"  # Auto-generate nach 3 Fragen
+            intent = "generate"
         elif any(kw in message for kw in REFINE_KEYWORDS) and current_graph:
             intent = "refine"
         else:

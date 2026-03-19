@@ -14,3 +14,9 @@ Company partner ideally — and something that could lead into a master's in rob
 Frage 3 vom Advisor: "Praktisch oder theoretisch?"
 
 Deine Antwort: "Practical — I want to build prototypes and test on real hardware, not just simulations"
+
+
+
+
+
+ich will zwei zusätzliche funktionen noch hinzufügen. einmal das man immer die option hat wenn man ein guter fit mit uni oder firma oder person ist das man ein research proposal machen kann um auch die möglichkeit zu netzwerken zu haben diese option soll in jedem nodes existieren. und es soll eine neue seite existieren wo in schicken statistiken die bestes fits von person firmen etc als top liste. zudem soll später noch beim geneieren der ersten n pfade ein einmaliges fenster kommen wo man ein der 3 pfade auswählt und nur der hauptpfand ist dann zusehen. danach ist es wie da vor mit der oberen darstellung wie man die pfade dann auswählt

@@ -1,9 +1,8 @@
+// src/components/graph/GraphView.tsx
 import { useCallback, useMemo } from "react";
 import {
   ReactFlow,
   Background,
-  type Node,
-  type Edge,
   type NodeMouseHandler,
   useNodesState,
   useEdgesState,
@@ -23,28 +22,37 @@ const nodeTypes = {
 interface GraphViewProps {
   backendData: BackendGraphResponse;
   activePathId: string;
+  selectedNodeId: string | null;
   onNodeClick?: (nodeId: string, nodeData: Record<string, unknown>) => void;
   onExpandNode?: (nodeData: Record<string, unknown>) => void;
 }
 
-export function GraphView({ backendData, activePathId, onNodeClick, onExpandNode }: GraphViewProps) {
-  const { layoutedNodes, layoutedEdges } = useMemo(() => {
-    const { nodes, edges } = parseGraphToFlow(backendData, activePathId);
-    // Inject onExpand callback into each node's data
-    const nodesWithExpand = nodes.map((node) => ({
+export function GraphView({
+  backendData,
+  activePathId,
+  selectedNodeId,
+  onNodeClick,
+  onExpandNode,
+}: GraphViewProps) {
+  const layoutedNodes = useMemo(() => {
+    const { nodes } = parseGraphToFlow(backendData, activePathId);
+    return nodes.map((node) => ({
       ...node,
-      data: { ...node.data, onExpand: onExpandNode },
+      data: {
+        ...node.data,
+        onExpand: onExpandNode,
+        isSelected: node.id === selectedNodeId,
+      },
     }));
-    return { layoutedNodes: nodesWithExpand, layoutedEdges: edges };
-  }, [backendData, activePathId, onExpandNode]);
+  }, [backendData, activePathId, onExpandNode, selectedNodeId]);
+
+  const layoutedEdges = useMemo(() => {
+    const { edges } = parseGraphToFlow(backendData, activePathId);
+    return edges;
+  }, [backendData, activePathId]);
 
   const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
   const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
-
-  // Re-sync when path changes (useNodesState only uses initial value)
-  useMemo(() => {
-    // This is handled by key prop on ReactFlow parent
-  }, [layoutedNodes, layoutedEdges]);
 
   const handleNodeClick: NodeMouseHandler = useCallback(
     (_event, node) => {
@@ -56,7 +64,7 @@ export function GraphView({ backendData, activePathId, onNodeClick, onExpandNode
   return (
     <div className="h-full w-full rounded-2xl border border-border/30 bg-card/40 shadow-editorial">
       <ReactFlow
-        key={activePathId}
+        key={`${activePathId}-${selectedNodeId}`}
         nodes={layoutedNodes}
         edges={layoutedEdges}
         onNodesChange={onNodesChange}

@@ -1,6 +1,4 @@
-// src/lib/api.ts — Backend API client
-// Replaces hardcoded mock data with real backend calls
-
+// src/lib/api.ts
 import type { BackendGraphResponse } from "@/components/graph/mockGraphData";
 
 const API_BASE = "http://localhost:8000";
@@ -16,6 +14,13 @@ export interface ChatResponse {
   follow_up_questions: Record<string, unknown>[];
 }
 
+export interface ProposalResponse {
+  draft: string;
+  subject: string;
+  entity_name: string;
+  entity_type: string;
+}
+
 export async function sendMessage(
   sessionId: string,
   message: string,
@@ -28,6 +33,26 @@ export async function sendMessage(
       session_id: sessionId,
       message,
       selected_nodes: selectedNodes,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function proposeResearch(
+  sessionId: string,
+  nodeId: string
+): Promise<ProposalResponse> {
+  const res = await fetch(`${API_BASE}/api/propose`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      session_id: sessionId,
+      node_id: nodeId,
     }),
   });
 
