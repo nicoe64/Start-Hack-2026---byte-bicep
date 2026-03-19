@@ -1,7 +1,7 @@
 // src/components/graph/EntityNode.tsx
 import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { User, Building2, FileText, Sparkles, ArrowUpRight } from "lucide-react";
+import { User, Building2, FileText, Sparkles, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export interface EntityNodeData {
@@ -42,9 +42,9 @@ export const EntityNode = memo(({ data }: NodeProps) => {
 
   return (
     <div
-      className={`min-w-[220px] rounded-2xl border bg-card px-6 py-5 transition-all duration-200 cursor-pointer ${
+      className={`min-w-[220px] rounded-2xl border bg-card px-6 py-5 transition-all duration-150 cursor-pointer select-none ${
         isSelected
-          ? "border-primary shadow-lg ring-2 ring-primary/30"
+          ? "border-green-500 shadow-lg ring-2 ring-green-500/25 bg-green-50/30 dark:bg-green-950/20"
           : "border-border/50 shadow-md hover:shadow-lg hover:border-border dark:border-blue-400/50"
       }`}
     >
@@ -61,7 +61,7 @@ export const EntityNode = memo(({ data }: NodeProps) => {
               {matchScore}% Match
             </Badge>
           )}
-          <h3 className="font-serif text-base font-semibold text-card-foreground truncate">
+          <h3 className="font-serif text-base font-semibold text-card-foreground truncate pr-1">
             {name}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground truncate">{role}</p>
@@ -71,21 +71,27 @@ export const EntityNode = memo(({ data }: NodeProps) => {
             </p>
           )}
         </div>
+
         <div className="ml-3 flex flex-col items-center gap-1.5 shrink-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-            <Icon className="h-4 w-4 text-primary" strokeWidth={1.5} />
+          {/* Entity type icon */}
+          <div className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+            isSelected ? "bg-green-100 dark:bg-green-900" : "bg-primary/10"
+          }`}>
+            <Icon className={`h-4 w-4 ${isSelected ? "text-green-600 dark:text-green-400" : "text-primary"}`} strokeWidth={1.5} />
           </div>
-          {/* Expand button — stops propagation so it doesn't also trigger node click */}
+
+          {/* Info button — stops propagation, opens dialog, does NOT select */}
           {onExpand && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onExpand(data as unknown as EntityNodeData);
               }}
-              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              aria-label="Expand details"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:bg-secondary hover:text-foreground"
+              aria-label="View details"
+              title="View details"
             >
-              <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
+              <Info className="h-3.5 w-3.5" strokeWidth={1.5} />
             </button>
           )}
         </div>
@@ -96,7 +102,11 @@ export const EntityNode = memo(({ data }: NodeProps) => {
           {tags.slice(0, 3).map((tag: string) => (
             <span
               key={tag}
-              className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-medium text-secondary-foreground"
+              className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                isSelected
+                  ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-400"
+                  : "bg-secondary text-secondary-foreground"
+              }`}
             >
               {tag.replace(/_/g, " ")}
             </span>
@@ -104,23 +114,18 @@ export const EntityNode = memo(({ data }: NodeProps) => {
         </div>
       )}
 
+      {/* Selected indicator */}
       {isSelected && (
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          <span className="text-[10px] text-primary font-medium">Selected — ask the AI about this</span>
+        <div className="mt-2.5 flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+          <span className="text-[10px] font-medium text-green-600 dark:text-green-400">
+            Selected for proposal
+          </span>
         </div>
       )}
 
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="!h-2 !w-2 !rounded-full !border-2 !border-primary !bg-card"
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="!h-2 !w-2 !rounded-full !border-2 !border-primary !bg-card"
-      />
+      <Handle type="target" position={Position.Top} className="!h-2 !w-2 !rounded-full !border-2 !border-primary !bg-card" />
+      <Handle type="source" position={Position.Bottom} className="!h-2 !w-2 !rounded-full !border-2 !border-primary !bg-card" />
     </div>
   );
 });

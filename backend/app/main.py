@@ -1,4 +1,3 @@
-from typing import Dict, Any, List
 from contextlib import asynccontextmanager
 import json
 import os
@@ -23,7 +22,7 @@ from app.llm.client import call as llm_call
 load_dotenv()
 
 
-# ── Request/Response Models ─────────────────────
+# ── Models ──────────────────────────────────────
 
 class ChatRequest(BaseModel):
     session_id: str
@@ -42,33 +41,17 @@ class ChatResponse(BaseModel):
     follow_up_questions: list[dict] = Field(default_factory=list)
 
 
-class ProposeRequest(BaseModel):
-    session_id: str
-    node_id: str
-
-
-class ProposeResponse(BaseModel):
-    draft: str
-    subject: str
-    entity_name: str
-    entity_type: str
-
-
-# ── In-Memory Session Store ─────────────────────
+# ── Session Store ────────────────────────────────
 
 sessions: dict[str, dict] = {}
+
 
 def get_or_create_session(session_id: str, website_profile: dict) -> dict:
     if session_id not in sessions:
         sessions[session_id] = {
             "website_profile": website_profile,
             "enriched_profile": {},
-            "signals": {
-                "liked": [],
-                "rejected": [],
-                "explored": [],
-                "keywords_mentioned": [],
-            },
+            "signals": {"liked": [], "rejected": [], "explored": [], "keywords_mentioned": []},
             "chat_history": [],
             "current_graph": {},
             "question_count": 0,
@@ -77,22 +60,20 @@ def get_or_create_session(session_id: str, website_profile: dict) -> dict:
     return sessions[session_id]
 
 
-# ── Lifespan ────────────────────────────────────
+# ── Lifespan ─────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     store = get_platform_store()
     print(f"RAG ready: {store.count()} entities")
-
     profile_path = os.path.join(DATA_DIR, "test_website_profile.json")
     with open(profile_path, encoding="utf-8") as f:
         app.state.website_profile = json.load(f)
-
     print(f"Backend ready. Student: {app.state.website_profile['name']}")
     yield
 
 
-# ── App ─────────────────────────────────────────
+# ── App ──────────────────────────────────────────
 
 app = FastAPI(title="Studyond Thesis Journey", lifespan=lifespan)
 
@@ -105,45 +86,32 @@ app.add_middleware(
 )
 
 
-# ── Pipeline Functions ──────────────────────────
+# ── Pipeline ─────────────────────────────────────
 
 async def run_welcome(session: dict) -> dict:
     state = {
-        "session_id": "api",
-        "node_results": [],
-        "output": {},
-        "message": "",
-        "website_profile": session["website_profile"],
+        "session_id": "api", "node_results": [], "output": {},
+        "message": "", "website_profile": session["website_profile"],
         "enriched_profile": session["enriched_profile"],
-        "signals": session["signals"],
-        "intent": "welcome",
-        "chat_history": [],
-        "response": "",
-        "question_count": 0,
+        "signals": session["signals"], "intent": "welcome",
+        "chat_history": [], "response": "", "question_count": 0,
     }
     return await WelcomeNode.run(state)
 
 
 async def run_chat_turn(session: dict, message: str) -> dict:
     session["question_count"] += 1
-    question_count = session["question_count"]
+    qc = session["question_count"]
 
     state = {
-        "session_id": "api",
-        "node_results": [],
-        "output": {},
+        "session_id": "api", "node_results": [], "output": {},
         "message": message,
         "website_profile": session["website_profile"],
         "enriched_profile": session["enriched_profile"],
-        "signals": session["signals"],
-        "intent": "",
-        "chat_history": session["chat_history"],
-        "response": "",
-        "question_count": question_count,
-        "search_query": "",
-        "candidates": {},
-        "filtered_candidates": {},
-        "graph_output": {},
+        "signals": session["signals"], "intent": "",
+        "chat_history": session["chat_history"], "response": "",
+        "question_count": qc, "search_query": "",
+        "candidates": {}, "filtered_candidates": {}, "graph_output": {},
         "current_graph": session.get("current_graph", {}),
     }
 
@@ -155,93 +123,116 @@ async def run_chat_turn(session: dict, message: str) -> dict:
         result = state
 
     result["enriched_profile"] = session["enriched_profile"]
-    result["question_count"] = question_count
+    result["question_count"] = qc
     result = await IntentRouterNode.run(result)
     intent = result["intent"]
-
-    print(f"  [Message {question_count}/3 | Intent: {intent}]")
+    print(f"  [Message {qc}/3 | Intent: {intent}]")
 
     if intent == "generate":
         result = await run_generate_pipeline(result, session)
     else:
         result["enriched_profile"] = session["enriched_profile"]
-        result["question_count"] = question_count
+        result["question_count"] = qc
         result = await AdvisorNode.run(result)
 
     result["intent"] = intent
-    result["question_count"] = question_count
+    result["question_count"] = qc
     return result
 
 
 async def run_generate_pipeline(state: dict, session: dict) -> dict:
     print("  [Generating paths...]")
-    state["enriched_profile"] = session["enriched_profile"]
-    state["signals"] = session["signals"]
-    state["website_profile"] = session["website_profile"]
-
+    state.update({
+        "enriched_profile": session["enriched_profile"],
+        "signals": session["signals"],
+        "website_profile": session["website_profile"],
+    })
     result = await QueryBuilderNode.run(state)
     result = await CandidateSearchNode.run(result)
-    result["website_profile"] = session["website_profile"]
-    result["enriched_profile"] = session["enriched_profile"]
-    result["signals"] = session["signals"]
+    result.update({
+        "website_profile": session["website_profile"],
+        "enriched_profile": session["enriched_profile"],
+        "signals": session["signals"],
+    })
     result = await CompatibilityFilterNode.run(result)
     result = await PathComposerNode.run(result)
-
     graph = result.get("graph_output", {})
     print(f"  [Result] {len(graph.get('paths', []))} paths, {len(graph.get('nodes', []))} nodes")
     return result
 
 
-# ── Post-Graph Chat ─────────────────────────────
+# ── Post-Graph Chat ───────────────────────────────
+
+def _is_proposal_mode(message: str) -> bool:
+    """Detect if the message contains a proposal draft context prefix."""
+    return message.strip().startswith("[Proposal draft context:")
+
+
+def _build_node_context(selected_nodes: list[str], graph: dict) -> str:
+    """Resolve selected node IDs to their full graph data."""
+    if not selected_nodes:
+        return ""
+    lines = ["SELECTED NODES (user is asking about these):"]
+    for node_id in selected_nodes:
+        node = next((n for n in graph.get("nodes", []) if n["id"] == node_id), None)
+        if node:
+            lines.append(
+                f"  [{node['type'].upper()}] {node['label']}"
+                f" | {node.get('subtitle', '')}"
+                f" | confidence: {int(node.get('confidence', 0) * 100)}%"
+                f" | reasoning: {node.get('reasoning', '')}"
+                f" | tags: {', '.join(node.get('tags', []))}"
+            )
+            if node.get("data"):
+                d = node["data"]
+                extras = []
+                for k in ("researchInterests", "domains", "about", "description", "degrees"):
+                    if k in d:
+                        val = d[k]
+                        if isinstance(val, list):
+                            extras.append(f"{k}: {', '.join(str(v) for v in val[:4])}")
+                        else:
+                            extras.append(f"{k}: {str(val)[:120]}")
+                if extras:
+                    lines.append(f"    Entity details: {' | '.join(extras)}")
+    return "\n".join(lines)
+
 
 async def run_post_graph_turn(
     session: dict, message: str, selected_nodes: list[str]
 ) -> dict:
-    """Contextual chat after graph is generated — uses LLM with node context."""
     graph = session.get("current_graph", {})
     website = session.get("website_profile", {})
     enriched = session.get("enriched_profile", {})
 
-    # Resolve selected node data from graph
-    selected_node_details = []
-    for node_id in selected_nodes:
-        node = next((n for n in graph.get("nodes", []) if n["id"] == node_id), None)
-        if node:
-            selected_node_details.append(node)
+    node_context = _build_node_context(selected_nodes, graph)
+    is_proposal = _is_proposal_mode(message)
 
-    node_context = ""
-    if selected_node_details:
-        node_context = "SELECTED NODES (user is asking about these specifically):\n"
-        for n in selected_node_details:
-            node_context += (
-                f"  - [{n['type'].upper()}] {n['label']} | {n.get('subtitle', '')} | "
-                f"Confidence: {int(n.get('confidence', 0) * 100)}% | "
-                f"Reasoning: {n.get('reasoning', '')}\n"
-            )
-
-    # Build path summary
     path_summary = ""
     if graph.get("paths"):
-        path_summary = "CURRENT GRAPH PATHS:\n"
-        for p in graph["paths"]:
-            path_summary += f"  - {p['label']} ({p['type']}, {int(p['confidence'] * 100)}%): {p.get('reasoning', '')}\n"
+        path_summary = "GRAPH PATHS:\n" + "\n".join(
+            f"  - {p['label']} ({p['type']}, {int(p['confidence']*100)}%): {p.get('reasoning','')}"
+            for p in graph["paths"]
+        )
 
-    system_prompt = """You are a thesis advisor helping a student explore their academic and career options.
-The student has already received a personalized graph of thesis paths. They may be asking about specific nodes (supervisors, companies, topics, experts) or requesting a research proposal draft.
+    if is_proposal:
+        system_prompt = """You are a research proposal writing assistant helping a thesis student.
+The user's message contains their current proposal draft context in [Proposal draft context: ...] and then their question or request.
 
-When asked to draft a proposal:
-- Keep it concise, professional, and personalized to the student's profile
-- Address it to the specific entity (supervisor/company/expert)
-- Mention the student's relevant skills and interests
-- Propose a concrete research direction
-- End with a clear call to action
+Your job:
+- Give specific, concrete suggestions for the section they're asking about
+- If they want an example, write one tailored to their profile and selected entities
+- If they want feedback, give direct, constructive critique
+- Keep responses focused and practical — under 200 words unless writing a full draft section
+- Use the student's profile, skills, and selected entities to personalize every response
+- Reference exact details: degree level, university, specific skills, entity names
 
-When answering questions about nodes:
-- Be specific about why this entity fits the student
-- Mention concrete details from their profile (degree, skills, interests)
-- Suggest next steps
+Never give generic advice. Always tie it back to this specific student and their specific situation."""
+    else:
+        system_prompt = """You are a thesis advisor helping a student explore their academic and career options.
+The student has received a personalized graph of thesis paths and may be asking about specific nodes or paths.
 
-Always be encouraging but honest. Keep responses focused and under 200 words unless drafting a formal proposal."""
+Be specific and reference the actual entities in the graph. Keep responses focused and under 200 words."""
 
     user_content = f"""Student profile: {json.dumps(website, ensure_ascii=False)}
 Enriched profile: {json.dumps(enriched, ensure_ascii=False)}
@@ -253,7 +244,7 @@ Enriched profile: {json.dumps(enriched, ensure_ascii=False)}
 Recent chat:
 {chr(10).join(f"{m['role']}: {m['content']}" for m in session.get('chat_history', [])[-6:])}
 
-Student message: {message}"""
+User message: {message}"""
 
     try:
         response = await llm_call(system_prompt, user_content, temperature=0.4)
@@ -261,80 +252,16 @@ Student message: {message}"""
         print(f"  [PostGraph LLM ERROR: {e}]")
         response = "I'm having trouble responding right now. Please try again."
 
-    intent = "proposal" if any(w in message.lower() for w in ["proposal", "draft", "write", "send", "propose"]) else "node_detail" if selected_node_details else "explore"
-
+    intent = "proposal_assist" if is_proposal else ("node_detail" if node_context else "explore")
     return {"response": response, "intent": intent}
 
 
-# ── Proposal Generator ──────────────────────────
-
-async def generate_proposal(session: dict, node_id: str) -> ProposeResponse:
-    """Generate a research proposal draft for a specific entity."""
-    graph = session.get("current_graph", {})
-    website = session.get("website_profile", {})
-    enriched = session.get("enriched_profile", {})
-
-    node = next((n for n in graph.get("nodes", []) if n["id"] == node_id), None)
-    if not node:
-        raise HTTPException(status_code=404, detail="Node not found in current graph")
-
-    entity_type = node.get("type", "")
-    entity_name = node.get("label", "Unknown")
-    entity_data = node.get("data", {})
-
-    system_prompt = """You are helping a student draft a research proposal or outreach email.
-Return a JSON object with exactly these fields:
-{
-  "subject": "Email subject line (max 10 words)",
-  "draft": "Full email draft (150-250 words, professional tone)"
-}
-Return ONLY the JSON, no preamble or markdown."""
-
-    user_content = f"""Student:
-- Name: {website.get('name', 'Student')}
-- University: {website.get('university', '')}
-- Degree: {website.get('degree_level', '')} in {website.get('study_program', '')}
-- Skills: {', '.join(website.get('skills', []))}
-- Interests: {', '.join(website.get('field_interests', []))}
-- Research idea: {enriched.get('topic_idea', 'To be defined')}
-- Career goal: {enriched.get('career_goal', 'Not specified')}
-
-Target entity:
-- Type: {entity_type}
-- Name: {entity_name}
-- AI reasoning for match: {node.get('reasoning', '')}
-- Entity details: {json.dumps(entity_data, ensure_ascii=False)[:500]}
-
-Draft a {('thesis supervision request' if entity_type == 'supervisor' else 'research collaboration proposal' if entity_type == 'company' else 'expert collaboration request')} email."""
-
-    try:
-        result_str = await llm_call(system_prompt, user_content, temperature=0.3, max_tokens=500)
-        # Strip markdown fences if present
-        clean = result_str.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
-        result = json.loads(clean)
-        return ProposeResponse(
-            draft=result.get("draft", ""),
-            subject=result.get("subject", f"Research proposal — {entity_name}"),
-            entity_name=entity_name,
-            entity_type=entity_type,
-        )
-    except Exception as e:
-        print(f"  [Proposal ERROR: {e}]")
-        return ProposeResponse(
-            draft=f"Dear {entity_name},\n\nI am {website.get('name', 'a student')} from {website.get('university', 'my university')}, studying {website.get('study_program', 'my field')}. I am reaching out to explore a potential research collaboration aligned with my interests in {', '.join(website.get('field_interests', ['AI']))}.\n\nI would love to discuss this further at your convenience.\n\nBest regards,\n{website.get('name', 'Student')}",
-            subject=f"Research collaboration inquiry — {entity_name}",
-            entity_name=entity_name,
-            entity_type=entity_type,
-        )
-
-
-# ── API Endpoints ───────────────────────────────
+# ── Endpoints ─────────────────────────────────────
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest, req: Request):
     try:
         session = get_or_create_session(request.session_id, req.app.state.website_profile)
-
         is_user_message = bool(request.message.strip())
 
         if not is_user_message and len(session["chat_history"]) == 0:
@@ -363,8 +290,7 @@ async def chat_endpoint(request: ChatRequest, req: Request):
 
         else:
             return ChatResponse(
-                response="",
-                intent="none",
+                response="", intent="none",
                 enriched_profile=session["enriched_profile"],
                 question_count=session["question_count"],
             )
@@ -388,25 +314,12 @@ async def chat_endpoint(request: ChatRequest, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/propose", response_model=ProposeResponse)
-async def propose_endpoint(request: ProposeRequest, req: Request):
-    """Generate a research proposal draft for a specific graph node."""
-    if request.session_id not in sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-    session = sessions[request.session_id]
-    return await generate_proposal(session, request.node_id)
-
-
 @app.get("/api/profile/{session_id}")
 async def get_profile(session_id: str):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     s = sessions[session_id]
-    return {
-        "website_profile": s["website_profile"],
-        "enriched_profile": s["enriched_profile"],
-        "signals": s["signals"],
-    }
+    return {"website_profile": s["website_profile"], "enriched_profile": s["enriched_profile"], "signals": s["signals"]}
 
 
 @app.get("/api/graph/{session_id}")

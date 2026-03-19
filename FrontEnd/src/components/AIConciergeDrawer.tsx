@@ -1,8 +1,8 @@
 // src/components/AIConciergeDrawer.tsx
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp, Sparkles, Loader2, X, Building2, User, FileText } from "lucide-react";
-import type { SelectedNode } from "@/pages/Index";
+import { ArrowUp, Sparkles, Loader2, FileText } from "lucide-react";
+import type { SelectedNodeSummary, ChatMode } from "@/pages/Index";
 
 interface Message {
   role: string;
@@ -15,16 +15,9 @@ interface AIConciergeDrawerProps {
   isLoading: boolean;
   questionCount: number;
   maxQuestions: number;
-  selectedNode: SelectedNode | null;
-  onClearSelectedNode: () => void;
+  chatMode: ChatMode;
+  selectedNodes: SelectedNodeSummary[];
 }
-
-const nodeTypeIcon: Record<string, React.ElementType> = {
-  company: Building2,
-  supervisor: User,
-  topic: FileText,
-  expert: Sparkles,
-};
 
 export function AIConciergeDrawer({
   messages,
@@ -32,8 +25,8 @@ export function AIConciergeDrawer({
   isLoading,
   questionCount,
   maxQuestions,
-  selectedNode,
-  onClearSelectedNode,
+  chatMode,
+  selectedNodes,
 }: AIConciergeDrawerProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -45,22 +38,23 @@ export function AIConciergeDrawer({
 
   const handleSubmit = () => {
     if (!input.trim() || isLoading) return;
-    const nodeIds = selectedNode ? [selectedNode.id] : [];
+    const nodeIds = selectedNodes.map((n) => n.id);
     onSendMessage(input.trim(), nodeIds);
     setInput("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
   };
 
-  const NodeIcon = selectedNode ? (nodeTypeIcon[selectedNode.type] ?? Sparkles) : Sparkles;
+  const isProposalMode = chatMode === "proposal";
+
+  const placeholder = isProposalMode
+    ? selectedNodes.length > 0
+      ? `Ask about ${selectedNodes[0].label} or get help with a field...`
+      : "Ask for help with any proposal section..."
+    : "Tell me about your thesis interests...";
 
   return (
     <aside className="relative flex h-full w-[380px] flex-col overflow-hidden border-l border-border/30">
@@ -73,17 +67,46 @@ export function AIConciergeDrawer({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/30 px-6 py-5">
         <div className="flex items-center gap-2.5">
-          <Sparkles className="h-4 w-4 text-primary" />
+          {isProposalMode ? (
+            <FileText className="h-4 w-4 text-primary" strokeWidth={1.5} />
+          ) : (
+            <Sparkles className="h-4 w-4 text-primary" />
+          )}
           <span className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground/70">
-            AI Thesis Advisor
+            {isProposalMode ? "Proposal Assistant" : "AI Thesis Advisor"}
           </span>
         </div>
-        {questionCount > 0 && questionCount < maxQuestions && (
+        {!isProposalMode && questionCount > 0 && questionCount < maxQuestions && (
           <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-medium text-primary">
             {questionCount}/{maxQuestions}
           </span>
         )}
+        {isProposalMode && selectedNodes.length > 0 && (
+          <span className="rounded-full bg-green-100 px-2.5 py-1 text-[10px] font-medium text-green-700 dark:bg-green-950 dark:text-green-400">
+            {selectedNodes.length} node{selectedNodes.length > 1 ? "s" : ""}
+          </span>
+        )}
       </div>
+
+      {/* Proposal mode context banner */}
+      <AnimatePresence>
+        {isProposalMode && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="border-b border-border/20 bg-primary/5 px-6 py-3">
+              <p className="text-[11px] text-primary/80 leading-relaxed">
+                {selectedNodes.length > 0
+                  ? `Writing proposal for: ${selectedNodes.map((n) => n.label).join(", ")}. Ask me to help with any field, generate examples, or refine your text.`
+                  : "Ask me to help with any section of your proposal — motivation, methods, timeline, or expected results."}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
@@ -107,13 +130,15 @@ export function AIConciergeDrawer({
                     : "mr-4 rounded-2xl rounded-bl-md bg-card/80 px-4 py-3 text-sm text-card-foreground shadow-sm"
                 }`}
               >
-                {msg.content}
+                <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </motion.div>
             ))}
             {isLoading && (
               <div className="mr-4 flex items-center gap-2 rounded-2xl bg-card/80 px-4 py-3">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Thinking...</span>
+                <span className="text-sm text-muted-foreground">
+                  {isProposalMode ? "Drafting..." : "Thinking..."}
+                </span>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -121,44 +146,17 @@ export function AIConciergeDrawer({
         )}
       </div>
 
-      {/* Selected node context badge */}
-      <AnimatePresence>
-        {selectedNode && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            className="mx-6 mb-2 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2"
-          >
-            <NodeIcon className="h-3.5 w-3.5 text-primary shrink-0" strokeWidth={1.5} />
-            <span className="flex-1 text-xs text-primary font-medium truncate">
-              Context: {selectedNode.label}
-            </span>
-            <button
-              onClick={onClearSelectedNode}
-              className="shrink-0 text-primary/50 hover:text-primary transition-colors"
-              aria-label="Clear selection"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Input */}
       <div className="border-t border-border/30 px-6 py-4">
-        <div className="flex items-end gap-2 rounded-2xl border border-border/50 bg-card/80 px-4 py-3">
+        <div className={`flex items-end gap-2 rounded-2xl border bg-card/80 px-4 py-3 transition-colors ${
+          isProposalMode ? "border-primary/30" : "border-border/50"
+        }`}>
           <textarea
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={
-              selectedNode
-                ? `Ask about ${selectedNode.label}...`
-                : "Tell me about your thesis interests..."
-            }
+            placeholder={placeholder}
             rows={1}
             className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
             style={{ maxHeight: "120px" }}
@@ -171,11 +169,6 @@ export function AIConciergeDrawer({
             <ArrowUp className="h-4 w-4" />
           </button>
         </div>
-        {selectedNode && (
-          <p className="mt-1.5 text-center text-[10px] text-muted-foreground/60">
-            Your message will include context about {selectedNode.label}
-          </p>
-        )}
       </div>
     </aside>
   );

@@ -8,19 +8,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  User,
-  Building2,
-  FileText,
-  Sparkles,
-  Mail,
-  MessageSquare,
-  Send,
-  Bookmark,
-} from "lucide-react";
+import { User, Building2, FileText, Sparkles, Mail } from "lucide-react";
 
 import topics from "@/data/topics.json";
 import companies from "@/data/companies.json";
@@ -31,8 +21,6 @@ interface NodeDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   nodeData: Record<string, unknown> | null;
-  onAskAI?: (nodeData: Record<string, unknown>) => void;
-  onPropose?: (nodeData: Record<string, unknown>) => void;
 }
 
 const iconMap: Record<string, React.ElementType> = {
@@ -46,16 +34,7 @@ function formatTag(tag: string) {
   return tag.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// Entities that can receive a research proposal (they don't "own" a topic)
-const PROPOSAL_ELIGIBLE_TYPES = new Set(["supervisor", "company", "expert"]);
-
-export function NodeDetailDialog({
-  open,
-  onOpenChange,
-  nodeData,
-  onAskAI,
-  onPropose,
-}: NodeDetailDialogProps) {
+export function NodeDetailDialog({ open, onOpenChange, nodeData }: NodeDetailDialogProps) {
   const entityType = nodeData?.entityType as string | undefined;
   const entityId = nodeData?.entityId as string | undefined;
   const name = nodeData?.name as string | undefined;
@@ -64,21 +43,14 @@ export function NodeDetailDialog({
   const tags = nodeData?.tags as string[] | undefined;
   const reasoning = nodeData?.reasoning as string | undefined;
 
-  const canPropose = entityType ? PROPOSAL_ELIGIBLE_TYPES.has(entityType) : false;
-
   const hydrated = useMemo(() => {
     if (!entityId || !entityType) return null;
     switch (entityType) {
-      case "topic":
-        return topics.find((t: any) => t.id === entityId);
-      case "company":
-        return companies.find((c: any) => c.id === entityId);
-      case "supervisor":
-        return supervisors.find((s: any) => s.id === entityId);
-      case "expert":
-        return experts.find((e: any) => e.id === entityId);
-      default:
-        return null;
+      case "topic": return topics.find((t: any) => t.id === entityId);
+      case "company": return companies.find((c: any) => c.id === entityId);
+      case "supervisor": return supervisors.find((s: any) => s.id === entityId);
+      case "expert": return experts.find((e: any) => e.id === entityId);
+      default: return null;
     }
   }, [entityId, entityType]);
 
@@ -130,13 +102,6 @@ export function NodeDetailDialog({
     return badges;
   }, [hydrated, entityType]);
 
-  const proposalLabel = useMemo(() => {
-    if (entityType === "supervisor") return "Propose thesis topic";
-    if (entityType === "company") return "Send research proposal";
-    if (entityType === "expert") return "Request collaboration";
-    return "Send proposal";
-  }, [entityType]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg rounded-3xl border-none bg-card p-0 shadow-2xl sm:rounded-3xl">
@@ -147,7 +112,6 @@ export function NodeDetailDialog({
         >
           <ScrollArea className="max-h-[80vh]">
             <div className="px-8 pb-8 pt-7">
-              {/* Header */}
               <DialogHeader className="mb-5">
                 <div className="mb-3 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -164,11 +128,6 @@ export function NodeDetailDialog({
                       {matchScore}% Match
                     </Badge>
                   )}
-                  {canPropose && (
-                    <Badge className="rounded-full border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-400">
-                      Open to proposals
-                    </Badge>
-                  )}
                 </div>
                 <DialogTitle className="font-serif text-2xl font-semibold leading-tight tracking-editorial text-card-foreground">
                   {displayTitle}
@@ -183,10 +142,7 @@ export function NodeDetailDialog({
               {metaBadges.length > 0 && (
                 <div className="mb-5 flex flex-wrap gap-1.5">
                   {metaBadges.map((badge) => (
-                    <span
-                      key={badge}
-                      className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground"
-                    >
+                    <span key={badge} className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-medium text-secondary-foreground">
                       {badge}
                     </span>
                   ))}
@@ -196,10 +152,7 @@ export function NodeDetailDialog({
               {tags && tags.length > 0 && (
                 <div className="mb-5 flex flex-wrap gap-1.5">
                   {tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary"
-                    >
+                    <span key={tag} className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary">
                       {formatTag(tag)}
                     </span>
                   ))}
@@ -215,22 +168,6 @@ export function NodeDetailDialog({
                 </div>
               )}
 
-              {/* Proposal callout — only for eligible entities */}
-              {canPropose && (
-                <div className="mb-5 rounded-xl border border-blue-200/60 bg-blue-50/40 px-4 py-3 dark:border-blue-800/40 dark:bg-blue-950/20">
-                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-blue-600/70 dark:text-blue-400/70">
-                    Research proposal
-                  </p>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {entityType === "supervisor"
-                      ? "This supervisor doesn't have a listed topic for your profile — but you can propose your own research direction directly."
-                      : entityType === "company"
-                      ? "This company may be open to student research collaborations beyond their listed topics. A direct proposal can open new opportunities."
-                      : "This expert may be available for collaborations outside listed topics. A direct outreach can open the conversation."}
-                  </p>
-                </div>
-              )}
-
               {description && (
                 <div className="mb-6">
                   <p className="text-sm leading-[1.75] text-card-foreground/80">{description}</p>
@@ -238,39 +175,15 @@ export function NodeDetailDialog({
               )}
 
               {hydrated && (entityType === "supervisor" || entityType === "expert") && (hydrated as any).email && (
-                <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <Mail className="h-4 w-4" strokeWidth={1.5} />
                   <span>{(hydrated as any).email}</span>
                 </div>
               )}
 
-              {/* CTA buttons */}
-              <div className="flex flex-col gap-2">
-                {canPropose && onPropose && nodeData && (
-                  <Button
-                    className="w-full gap-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
-                    size="lg"
-                    onClick={() => onPropose(nodeData)}
-                  >
-                    <Send className="h-4 w-4" />
-                    {proposalLabel}
-                  </Button>
-                )}
-                <div className="flex gap-2">
-                  <Button
-                    className="flex-1 gap-2 rounded-xl"
-                    size="lg"
-                    onClick={() => onAskAI && nodeData && onAskAI(nodeData)}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    Ask AI about this
-                  </Button>
-                  <Button variant="outline" className="gap-2 rounded-xl" size="lg">
-                    <Bookmark className="h-4 w-4" />
-                    Save
-                  </Button>
-                </div>
-              </div>
+              <p className="text-center text-[11px] text-muted-foreground/50">
+                Click the node on the graph to select it for a proposal
+              </p>
             </div>
           </ScrollArea>
         </motion.div>

@@ -22,7 +22,7 @@ const nodeTypes = {
 interface GraphViewProps {
   backendData: BackendGraphResponse;
   activePathId: string;
-  selectedNodeId: string | null;
+  selectedNodeIds: Set<string>;
   onNodeClick?: (nodeId: string, nodeData: Record<string, unknown>) => void;
   onExpandNode?: (nodeData: Record<string, unknown>) => void;
 }
@@ -30,29 +30,25 @@ interface GraphViewProps {
 export function GraphView({
   backendData,
   activePathId,
-  selectedNodeId,
+  selectedNodeIds,
   onNodeClick,
   onExpandNode,
 }: GraphViewProps) {
-  const layoutedNodes = useMemo(() => {
-    const { nodes } = parseGraphToFlow(backendData, activePathId);
-    return nodes.map((node) => ({
+  const { layoutedNodes, layoutedEdges } = useMemo(() => {
+    const { nodes, edges } = parseGraphToFlow(backendData, activePathId);
+    const nodesWithMeta = nodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
         onExpand: onExpandNode,
-        isSelected: node.id === selectedNodeId,
+        isSelected: selectedNodeIds.has(node.id),
       },
     }));
-  }, [backendData, activePathId, onExpandNode, selectedNodeId]);
+    return { layoutedNodes: nodesWithMeta, layoutedEdges: edges };
+  }, [backendData, activePathId, onExpandNode, selectedNodeIds]);
 
-  const layoutedEdges = useMemo(() => {
-    const { edges } = parseGraphToFlow(backendData, activePathId);
-    return edges;
-  }, [backendData, activePathId]);
-
-  const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
+  const [, , onNodesChange] = useNodesState(layoutedNodes);
+  const [, , onEdgesChange] = useEdgesState(layoutedEdges);
 
   const handleNodeClick: NodeMouseHandler = useCallback(
     (_event, node) => {
@@ -61,10 +57,13 @@ export function GraphView({
     [onNodeClick]
   );
 
+  // Key includes selection size so React re-renders when selection changes
+  const graphKey = `${activePathId}-${selectedNodeIds.size}-${Array.from(selectedNodeIds).join(",")}`;
+
   return (
     <div className="h-full w-full rounded-2xl border border-border/30 bg-card/40 shadow-editorial">
       <ReactFlow
-        key={`${activePathId}-${selectedNodeId}`}
+        key={graphKey}
         nodes={layoutedNodes}
         edges={layoutedEdges}
         onNodesChange={onNodesChange}
