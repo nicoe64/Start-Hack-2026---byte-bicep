@@ -1,5 +1,4 @@
 // src/components/StudyondSidebar.tsx
-import { useState } from "react";
 import {
   Home, MessageSquare, FolderOpen, Compass, Briefcase,
   Users, Building2, Settings, ChevronRight, Sun, Moon, UserCircle2,
@@ -29,34 +28,19 @@ const discoverItems: NavItem[] = [
   { label: "Organizations", icon: Building2, hasSubmenu: true },
 ];
 
-interface StudyondSidebarProps {
-  activePage?: string;
-}
-
-export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
+export function StudyondSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const currentRoute = location.pathname;
-
-  const handleItemClick = (item: NavItem) => {
-    if (item.route) navigate(item.route);
-  };
-
-  const isActive = (item: NavItem) => {
-    if (item.route) return currentRoute === item.route;
-    if (activePage) return activePage === item.label;
-    return false;
-  };
+  const isActive = (item: NavItem) =>
+    item.route ? location.pathname === item.route : false;
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-border/50 py-10 pl-8 pr-4">
-      {/* Logo */}
       <div className="mb-14">
         <img src="/studyond.svg" alt="Studyond" className="h-8" />
       </div>
 
-      {/* Personal section */}
       <div className="mb-8">
         <span className="mb-4 block text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
           Personal
@@ -67,13 +51,12 @@ export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
               key={item.label}
               item={item}
               isActive={isActive(item)}
-              onClick={() => handleItemClick(item)}
+              onClick={() => item.route && navigate(item.route)}
             />
           ))}
         </nav>
       </div>
 
-      {/* Discover section */}
       <div className="mb-8">
         <span className="mb-4 block text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
           Discover
@@ -84,7 +67,7 @@ export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
               key={item.label}
               item={item}
               isActive={isActive(item)}
-              onClick={() => handleItemClick(item)}
+              onClick={() => {}}
             />
           ))}
         </nav>
@@ -92,13 +75,12 @@ export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
 
       <div className="flex-1" />
 
-      {/* Settings + Theme */}
       <div className="border-t border-border/40 pt-4">
         <div className="flex items-center gap-1">
           <div className="flex-1">
             <SidebarItem
               item={{ label: "Settings", icon: Settings }}
-              isActive={isActive({ label: "Settings", icon: Settings })}
+              isActive={false}
               onClick={() => {}}
             />
           </div>
@@ -107,11 +89,11 @@ export function StudyondSidebar({ activePage }: StudyondSidebarProps) {
 
         <div className="mt-6 flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
-            NE
+            FB
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-foreground">Nico Ehle</p>
-            <p className="truncate text-xs text-muted-foreground">nicolas.ehle@st.oth...</p>
+            <p className="truncate text-sm font-medium text-foreground">Felix Boyke</p>
+            <p className="truncate text-xs text-muted-foreground">feb3560@thi.de</p>
           </div>
         </div>
       </div>

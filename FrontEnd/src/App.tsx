@@ -12,37 +12,21 @@ import type { BackendGraphResponse } from "@/components/graph/mockGraphData";
 
 const queryClient = new QueryClient();
 
-// Shared state lifted to App so ProfilePage can access graph data
-export interface AppSharedState {
-  graphData: BackendGraphResponse | null;
-  enrichedProfile: Record<string, unknown>;
-  websiteProfile: {
-    name?: string;
-    university?: string;
-    degree_level?: string;
-    study_program?: string;
-    field_interests?: string[];
-    skills?: string[];
-    graduation_date?: string;
-  };
-  setGraphData: (d: BackendGraphResponse | null) => void;
-  setEnrichedProfile: (p: Record<string, unknown>) => void;
-}
+const WEBSITE_PROFILE = {
+  name: "Felix Boyke",
+  university: "Technische Hochschule Ingolstadt",
+  degree_level: "BSc",
+  study_program: "Artificial Intelligence",
+  field_interests: ["Artificial Intelligence", "Computer Science", "Mechanical Engineering"],
+  skills: ["Python", "PyTorch", "Deep Learning", "Reinforcement Learning"],
+  graduation_date: "2025",
+};
 
 const App = () => {
   const [graphData, setGraphData] = useState<BackendGraphResponse | null>(null);
   const [enrichedProfile, setEnrichedProfile] = useState<Record<string, unknown>>({});
-
-  // Static website profile — in production this would come from the backend session
-  const websiteProfile = {
-    name: "Felix Boyke",
-    university: "Technische Hochschule Ingolstadt",
-    degree_level: "BSc",
-    study_program: "Künstliche Intelligenz",
-    field_interests: ["Artificial Intelligence", "Computer Science", "Mechanical Engineering"],
-    skills: ["Python", "PyTorch", "Deep Learning", "Reinforcement Learning"],
-    graduation_date: "2025",
-  };
+  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [chatInput, setChatInput] = useState("");
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -55,9 +39,13 @@ const App = () => {
               path="/"
               element={
                 <Index
-                  sharedGraphData={graphData}
+                  graphData={graphData}
                   onGraphDataChange={setGraphData}
                   onEnrichedProfileChange={setEnrichedProfile}
+                  messages={messages}
+                  onMessagesChange={setMessages}
+                  chatInput={chatInput}
+                  onChatInputChange={setChatInput}
                 />
               }
             />
@@ -67,7 +55,7 @@ const App = () => {
                 <ProfilePage
                   graphData={graphData}
                   enrichedProfile={enrichedProfile}
-                  websiteProfile={websiteProfile}
+                  websiteProfile={WEBSITE_PROFILE}
                 />
               }
             />

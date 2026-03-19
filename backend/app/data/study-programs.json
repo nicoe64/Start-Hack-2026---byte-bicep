@@ -215,5 +215,30 @@
     "degree": "msc",
     "universityId": "uni-11",
     "about": "A unique interdisciplinary program combining mechanical engineering, electrical engineering, and computer science. Students work on perception, planning, control, and learning for robotic systems. Thesis projects often involve industry partners like BMW, Airbus, or DLR."
+  },
+
+
+
+
+  {
+    "id": "prog-32",
+    "name": "MSc Computer Science – Machine Intelligence Track",
+    "degree": "msc",
+    "universityId": "uni-13",
+    "about": "EPFL's Machine Intelligence track within the CS master's program covers neural networks, optimization, reinforcement learning, and human-machine interaction. Students benefit from EPFL's cutting-edge GPU infrastructure and access to the IDIAP Research Institute in Martigny."
+  },
+  {
+    "id": "prog-33",
+    "name": "BSc Informatics",
+    "degree": "bsc",
+    "universityId": "uni-14",
+    "about": "TU Wien's flagship computer science bachelor with strong foundations in algorithms, systems, and AI. Students can specialize in machine learning and data science from the third year. The program is tightly integrated with Vienna's thriving tech startup scene and major employers like Runtastic (adidas) and Dynatrace."
+  },
+  {
+    "id": "prog-34",
+    "name": "MSc Autonomous Systems",
+    "degree": "msc",
+    "universityId": "uni-17",
+    "about": "TU Graz's Autonomous Systems master's program covers sensor fusion, control theory, machine learning, and embedded systems. Strongly oriented towards automotive and industrial applications. Students frequently collaborate with AVL List, Magna, and Anton Paar on applied thesis projects."
   }
 ]

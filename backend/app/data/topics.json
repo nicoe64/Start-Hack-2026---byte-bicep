@@ -898,5 +898,224 @@
     "universityId": "uni-09",
     "supervisorIds": ["supervisor-23"],
     "expertIds": []
+  },
+
+
+
+
+  
+    {
+    "id": "topic-70",
+    "title": "Sim-to-Real Transfer for Legged Robot Locomotion Using Deep RL",
+    "description": "Develop and evaluate a deep reinforcement learning pipeline for training locomotion policies for a quadrupedal robot in simulation (e.g., Isaac Gym or MuJoCo) and transferring them to a physical platform. The thesis should investigate domain randomization strategies, reward shaping, and contact dynamics modelling to close the sim-to-real gap. Evaluation will be conducted on the ANYmal robot at the company lab.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "on_site",
+    "degrees": [
+      "bsc",
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ],
+    "companyId": "company-31",
+    "universityId": "uni-12",
+    "supervisorIds": [
+      "supervisor-33"
+    ],
+    "expertIds": [
+      "expert-45"
+    ]
+  },
+  {
+    "id": "topic-71",
+    "title": "End-to-End Deep Learning for Sensor Fusion in Autonomous Vehicles",
+    "description": "Investigate transformer-based architectures for fusing LiDAR, radar, and camera inputs in an end-to-end autonomous driving perception stack. The student will design, implement, and benchmark a multi-modal fusion model on the nuScenes dataset and evaluate real-world performance using Cariad's internal data. Focus on inference speed and deployment on automotive-grade embedded hardware.",
+    "type": "topic",
+    "employment": "working_student",
+    "employmentType": "part_time",
+    "workplaceType": "hybrid",
+    "degrees": [
+      "bsc",
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
+    "companyId": "company-23",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-31"
+    ],
+    "expertIds": [
+      "expert-41"
+    ]
+  },
+  {
+    "id": "topic-72",
+    "title": "Reinforcement Learning for Adaptive Robot Grasping in Unstructured Environments",
+    "description": "Design a reinforcement learning agent capable of robust object grasping in cluttered, unstructured environments. The thesis should compare model-free (SAC, PPO) and model-based RL approaches, integrate tactile and visual sensing, and benchmark on a standard manipulation benchmark (e.g., Robosuite or MetaWorld). Collaboration with ibb robotics for real-robot validation is planned.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "on_site",
+    "degrees": [
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ],
+    "companyId": "company-33",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-30"
+    ],
+    "expertIds": [
+      "expert-42"
+    ]
+  },
+  {
+    "id": "topic-73",
+    "title": "Explainable AI for Predictive Maintenance in BMW Manufacturing",
+    "description": "Develop and evaluate explainability methods (SHAP, LIME, attention visualization) applied to a deep learning model for predictive maintenance in an automotive assembly plant. The thesis will use real sensor data from BMW Group's production lines, build a failure prediction model, and analyze what features the model relies on. Emphasis on communicating insights to non-expert operators.",
+    "type": "topic",
+    "employment": "working_student",
+    "employmentType": "part_time",
+    "workplaceType": "hybrid",
+    "degrees": [
+      "bsc",
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-06"
+    ],
+    "companyId": "company-20",
+    "universityId": "uni-11",
+    "supervisorIds": [
+      "supervisor-32"
+    ],
+    "expertIds": [
+      "expert-40"
+    ]
+  },
+  {
+    "id": "topic-74",
+    "title": "Safe Reinforcement Learning for Industrial Robot Arm Control",
+    "description": "Research and implement safety-constrained reinforcement learning algorithms (e.g., CPO, TRPO-Lagrangian, CBF-RL) for controlling a 6-DOF industrial robot arm in shared human-robot workspace scenarios. Evaluate constraint satisfaction, task performance, and recovery behavior. Project will be conducted in collaboration with Siemens Digital Industries and tested in a Siemens lab environment.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "on_site",
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ],
+    "companyId": "company-21",
+    "universityId": "uni-12",
+    "supervisorIds": [
+      "supervisor-33"
+    ],
+    "expertIds": [
+      "expert-43"
+    ]
+  },
+  {
+    "id": "topic-75",
+    "title": "Autonomous Drone Navigation in GPS-Denied Environments Using Event Cameras",
+    "description": "Investigate the use of event cameras (neuromorphic sensors) combined with deep learning and reinforcement learning for high-speed drone navigation in GPS-denied indoor environments. Implement a perception-action pipeline on a real micro-aerial vehicle platform and benchmark against traditional frame-based approaches in terms of latency and robustness.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "on_site",
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ],
+    "companyId": null,
+    "universityId": "uni-16",
+    "supervisorIds": [
+      "supervisor-36"
+    ],
+    "expertIds": []
+  },
+  {
+    "id": "topic-76",
+    "title": "Generative AI for Synthetic Training Data in Aerospace Inspection",
+    "description": "Explore the use of diffusion models and GANs to generate synthetic defect images for training deep learning-based visual inspection models in aerospace manufacturing. Evaluate the quality and diversity of synthetic data, measure its impact on model performance for real defect detection, and assess domain gap. Thesis conducted in partnership with Airbus Munich AI Lab.",
+    "type": "topic",
+    "employment": "working_student",
+    "employmentType": "full_time",
+    "workplaceType": "on_site",
+    "degrees": [
+      "bsc",
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
+    "companyId": "company-28",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-30"
+    ],
+    "expertIds": []
+  },
+  {
+    "id": "topic-77",
+    "title": "Fairness and Bias Auditing of ML Models in Austrian Public Sector Applications",
+    "description": "Conduct a systematic fairness audit of machine learning models deployed or planned for deployment in Austrian public services (e.g., social benefit allocation, risk scoring). Apply algorithmic fairness metrics, bias mitigation techniques, and red-teaming strategies. Propose a governance framework compatible with the EU AI Act requirements for high-risk AI systems.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "remote",
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-05"
+    ],
+    "companyId": null,
+    "universityId": "uni-14",
+    "supervisorIds": [
+      "supervisor-35"
+    ],
+    "expertIds": []
+  },
+  {
+    "id": "topic-78",
+    "title": "Real-Time Object Detection for AUDI Quality Control Using Knowledge Distillation",
+    "description": "Develop a lightweight computer vision model for real-time defect detection on painted car body surfaces using knowledge distillation techniques to compress large teacher models into deployment-ready student models. Benchmark on latency, accuracy, and robustness to manufacturing environment noise. Work will be conducted at AUDI AG's Ingolstadt plant in collaboration with the AI Research team.",
+    "type": "topic",
+    "employment": "working_student",
+    "employmentType": "part_time",
+    "workplaceType": "on_site",
+    "degrees": [
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
+    "companyId": "company-27",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-31"
+    ],
+    "expertIds": [
+      "expert-46"
+    ]
   }
 ]

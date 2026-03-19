@@ -1,14 +1,25 @@
+// src/components/graph/parseGraphToFlow.ts
 import type { Node, Edge } from "@xyflow/react";
 import dagre from "dagre";
 import type { BackendGraphResponse } from "./mockGraphData";
 
-const NODE_WIDTH = 280;
-const NODE_HEIGHT = 120;
+const NODE_WIDTH = 260;
+const NODE_HEIGHT = 130;
+// Extra padding so nodes never visually touch
+const NODE_SEP = 60;
+const RANK_SEP = 90;
 
 function layoutWithDagre(nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: Edge[] } {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "TB", nodesep: 80, ranksep: 100 });
+  g.setGraph({
+    rankdir: "TB",
+    nodesep: NODE_SEP,
+    ranksep: RANK_SEP,
+    marginx: 40,
+    marginy: 40,
+    // align: "UL" keeps nodes left-aligned within rank, reduces visual clutter
+  });
 
   nodes.forEach((node) => {
     g.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
@@ -34,35 +45,8 @@ function layoutWithDagre(nodes: Node[], edges: Edge[]): { nodes: Node[]; edges: 
   return { nodes: layoutedNodes, edges };
 }
 
-const EDGE_STYLES: Record<string, React.CSSProperties> = {
-  belongs_to: {
-    stroke: "hsl(var(--muted-foreground))",
-    strokeWidth: 1.6,
-  },
-  posted_by: {
-    stroke: "hsl(var(--muted-foreground))",
-    strokeWidth: 1.6,
-  },
-  supervised_by: {
-    stroke: "hsl(142, 71%, 35%)",
-    strokeWidth: 2,
-    strokeDasharray: "6 4",
-  },
-  has_expert: {
-    stroke: "hsl(var(--muted-foreground))",
-    strokeWidth: 1.2,
-  },
-};
-
-/** Map backend node type to our custom React Flow node type */
-function mapNodeType(backendType: string): string {
-  if (backendType === "topic") return "entity";
-  return "entity";
-}
-
-/** Map backend node type to entityType for EntityNode rendering */
 function mapEntityType(backendType: string): string {
-  return backendType; // topic | company | supervisor | expert
+  return backendType;
 }
 
 export function parseGraphToFlow(
@@ -74,7 +58,7 @@ export function parseGraphToFlow(
 
   const activeNodeIds = new Set(path.node_ids);
 
-  // Build student profile node from student_summary
+  // Student profile node
   const summaryParts = backend.student_summary.split(", ");
   const studentName = summaryParts[0] || "Student";
   const studentDegree = summaryParts.slice(1).join(", ");
@@ -90,12 +74,11 @@ export function parseGraphToFlow(
     },
   };
 
-  // Filter and map backend nodes
   const filteredBackendNodes = backend.nodes.filter((n) => activeNodeIds.has(n.id));
 
   const rfNodes: Node[] = filteredBackendNodes.map((n) => ({
     id: n.id,
-    type: mapNodeType(n.type),
+    type: "entity",
     position: { x: 0, y: 0 },
     data: {
       name: n.label,
@@ -108,34 +91,27 @@ export function parseGraphToFlow(
     },
   }));
 
-  // Find the topic node(s) — these connect to the student profile
-  const topicNodeIds = filteredBackendNodes.filter((n) => n.type === "topic").map((n) => n.id);
+  const topicNodeIds = filteredBackendNodes
+    .filter((n) => n.type === "topic")
+    .map((n) => n.id);
 
-  // Edges from student to topic nodes
   const studentEdges: Edge[] = topicNodeIds.map((tid, i) => ({
     id: `student-to-${tid}-${i}`,
     source: "__student__",
     target: tid,
-    type: "default",
-    style: {
-      stroke: "#15803d",
-      strokeWidth: 2,
-    },
+    type: "smoothstep",
+    style: { stroke: "hsl(142, 71%, 35%)", strokeWidth: 2 },
     animated: false,
   }));
 
-  // Filter and map backend edges
   const rfEdges: Edge[] = backend.edges
     .filter((e) => activeNodeIds.has(e.from) && activeNodeIds.has(e.to))
     .map((e, i) => ({
       id: `edge-${e.from}-${e.to}-${i}`,
       source: e.from,
       target: e.to,
-      type: "default",
-      style: {
-        stroke: "#15803d",
-        strokeWidth: 1.6,
-      },
+      type: "smoothstep",
+      style: { stroke: "hsl(var(--muted-foreground))", strokeWidth: 1.6 },
       animated: false,
     }));
 

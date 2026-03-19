@@ -223,5 +223,109 @@
     "expertIds": [],
     "createdAt": "2026-01-15T13:00:00Z",
     "updatedAt": "2026-02-20T10:00:00Z"
+  },
+
+
+
+
+
+
+
+
+
+
+
+    {
+    "id": "project-20",
+    "title": "Deep RL for Quadrupedal Locomotion on Rough Terrain",
+    "description": "Proposing to train and evaluate a PPO-based locomotion policy for the ANYmal robot in Isaac Gym with aggressive domain randomization, then transfer it to the physical platform at ANYbotics.",
+    "motivation": "My internship at Airbus gave me hands-on experience with robotic systems and simulation environments. I am deeply passionate about robot learning and have been working with MuJoCo and PyTorch in personal projects for the past year.",
+    "state": "accepted",
+    "studentId": "student-felix-01",
+    "topicId": "topic-70",
+    "companyId": "company-31",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-30"
+    ],
+    "expertIds": [
+      "expert-45"
+    ],
+    "createdAt": "2026-02-10T09:30:00Z",
+    "updatedAt": "2026-03-01T14:00:00Z"
+  },
+  {
+    "id": "project-21",
+    "title": "Transformer-Based Sensor Fusion for ADAS at Cariad",
+    "description": "Applying a BEVFusion-style multi-modal transformer architecture to fuse LiDAR and camera data for object detection, adapted for Cariad's embedded hardware constraints.",
+    "motivation": "I have been following the BEVFusion and DETR literature closely. My background in deep learning and PyTorch makes me well-prepared to implement and adapt these architectures for real automotive deployment constraints.",
+    "state": "pending",
+    "studentId": "student-felix-01",
+    "topicId": "topic-71",
+    "companyId": "company-23",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-31"
+    ],
+    "expertIds": [
+      "expert-41"
+    ],
+    "createdAt": "2026-03-05T11:00:00Z",
+    "updatedAt": "2026-03-10T16:30:00Z"
+  },
+  {
+    "id": "project-22",
+    "title": "Synthetic Defect Generation for Airbus Inspection Using Diffusion Models",
+    "description": "Using Stable Diffusion fine-tuned on real aerospace defect images to generate diverse synthetic training data for a ViT-based inspection classifier.",
+    "motivation": "Having interned at Airbus Toulouse, I understand the challenge of acquiring labeled defect data. I want to apply generative AI to solve this bottleneck directly in a context I know well.",
+    "state": "rejected",
+    "studentId": "student-felix-01",
+    "topicId": "topic-76",
+    "companyId": "company-28",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-30"
+    ],
+    "expertIds": [],
+    "createdAt": "2026-01-20T08:00:00Z",
+    "updatedAt": "2026-02-15T12:00:00Z"
+  },
+  {
+    "id": "project-23",
+    "title": "Knowledge Distillation for Real-Time Defect Detection at AUDI",
+    "description": "Distilling a large ResNet-based teacher model into a MobileNet-v3 student for sub-10ms inference on painted car body surfaces using AUDI's internal defect dataset.",
+    "motivation": "I am highly motivated to work at AUDI in Ingolstadt, a short drive from my university. My coursework in computer vision and embedded AI directly aligns with this topic.",
+    "state": "pending",
+    "studentId": "student-felix-01",
+    "topicId": "topic-78",
+    "companyId": "company-27",
+    "universityId": "uni-10",
+    "supervisorIds": [
+      "supervisor-31"
+    ],
+    "expertIds": [
+      "expert-46"
+    ],
+    "createdAt": "2026-03-12T10:00:00Z",
+    "updatedAt": "2026-03-12T10:00:00Z"
+  },
+  {
+    "id": "project-24",
+    "title": "Safe RL for Cobots in Siemens Smart Factory",
+    "description": "Implementing CPO (Constrained Policy Optimization) for a UR10 robot arm in a simulated Siemens factory environment, with planned transfer to a real cobot in Baden-Württemberg.",
+    "motivation": "Safe RL is a topic I have been studying independently. Combining safety constraints with real robot applications at an industry leader like Siemens would be the ideal thesis topic for me.",
+    "state": "accepted",
+    "studentId": "student-jakob-02",
+    "topicId": "topic-74",
+    "companyId": "company-21",
+    "universityId": "uni-11",
+    "supervisorIds": [
+      "supervisor-33"
+    ],
+    "expertIds": [
+      "expert-43"
+    ],
+    "createdAt": "2026-02-28T14:00:00Z",
+    "updatedAt": "2026-03-15T09:00:00Z"
   }
 ]

@@ -75,5 +75,48 @@
     "country": "DE",
     "domains": ["usi.ch"],
     "about":   "TUM is one of Europe's leading technical universities, consistently ranked #1 in Germany. Known for cutting-edge research in robotics, AI, autonomous systems, and engineering.Strong industry partnerships with BMW, Siemens, Airbus, and the Munich startup ecosystem."
+  },
+
+
+
+
+
+
+    {
+    "id": "uni-12",
+    "name": "Technische Hochschule Ingolstadt (THI)",
+    "country": "DE",
+    "domains": [
+      "thi.de"
+    ],
+    "about": "THI is a leading applied sciences university in Bavaria with a sharp focus on AI, autonomous mobility, and engineering. Home to the CARISSMA safety research institute and the KI-Zentrum for applied AI. Strong partnerships with AUDI AG, Cariad, and Airbus make it a prime hub for industry-facing thesis projects."
+  },
+
+  {
+    "id": "uni-13",
+    "name": "EPFL – École Polytechnique Fédérale de Lausanne",
+    "country": "CH",
+    "domains": [
+      "epfl.ch"
+    ],
+    "about": "EPFL is a world-class technical university in Lausanne with leading labs in machine learning, robotics, and neuroscience. The EPFL Innovation Park hosts over 300 startups. Key industry partners include Nestlé, Logitech, and ABB. Strong focus on interdisciplinary AI research bridging hardware and software."
+  },
+  {
+    "id": "uni-14",
+    "name": "TU Wien",
+    "country": "AT",
+    "domains": [
+      "tuwien.ac.at"
+    ],
+    "about": "TU Wien is Austria's largest and most prestigious technical university. Strengths in computer science, AI, automation, and smart infrastructure. Key industry partners include Siemens Austria, AVL List, and Frequentis. The Faculty of Informatics hosts internationally recognized research groups in machine learning and computer vision."
+  },
+  {
+    "id": "uni-15",
+    "name": "LMU Munich – Ludwig Maximilian University",
+    "country": "DE",
+    "domains": [
+      "lmu.de"
+    ],
+    "about": "LMU Munich is one of Germany's most research-intensive universities. The Department of Statistics and the Institute for AI and their collaboration within the Munich Center for Machine Learning (MCML) make LMU a national hub for probabilistic ML, deep learning theory, and trustworthy AI."
   }
 ]

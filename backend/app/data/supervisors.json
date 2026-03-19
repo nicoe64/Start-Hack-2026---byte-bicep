@@ -298,5 +298,179 @@
     "about": "Associate professor at USI's Faculty of Communication, Culture and Society. My research explores how digital platforms shape health information seeking and decision-making. I collaborate with the Swiss School of Public Health and WHO Europe.",
     "objectives": ["research_collaboration", "network_expansion", "project_management"],
     "fieldIds": ["field-15", "field-12"]
+  },
+
+
+
+
+
+
+
+
+    {
+    "id": "supervisor-30",
+    "firstName": "Markus",
+    "lastName": "Hofmann",
+    "email": "markus.hofmann@thi.de",
+    "title": "Prof. Dr.",
+    "universityId": "uni-10",
+    "researchInterests": [
+      "reinforcement learning",
+      "autonomous robotics",
+      "sim-to-real transfer",
+      "robot learning"
+    ],
+    "about": "Professor of AI and Robotics at THI's Faculty of Computer Science. Head of the Robot Learning Lab. My research focuses on applying deep reinforcement learning to physical robot systems, with emphasis on locomotion and manipulation. I collaborate with Cariad and Airbus on applied robotics projects.",
+    "objectives": [
+      "research_collaboration",
+      "industry_projects",
+      "student_mentorship"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ]
+  },
+  {
+    "id": "supervisor-31",
+    "firstName": "Julia",
+    "lastName": "Bayer",
+    "email": "julia.bayer@thi.de",
+    "title": "Prof. Dr.",
+    "universityId": "uni-10",
+    "researchInterests": [
+      "computer vision",
+      "object detection",
+      "autonomous driving perception",
+      "edge AI"
+    ],
+    "about": "Associate professor at THI specializing in embedded AI and automotive perception. Lead of the AI4Mobility research group. Prior industry experience at AUDI AG's driver assistance development division. Supervises thesis projects in collaboration with Cariad and local automotive suppliers.",
+    "objectives": [
+      "industry_projects",
+      "student_mentorship",
+      "research_collaboration"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
+  },
+  {
+    "id": "supervisor-32",
+    "firstName": "Thomas",
+    "lastName": "Brox",
+    "email": "thomas.brox@tum.de",
+    "title": "Prof. Dr.",
+    "universityId": "uni-11",
+    "researchInterests": [
+      "deep learning",
+      "optical flow",
+      "semantic segmentation",
+      "self-supervised learning"
+    ],
+    "about": "Full professor at TUM's Department of Informatics and member of the Munich Center for Machine Learning (MCML). My group works on deep learning for visual recognition and unsupervised representation learning. I have long-standing collaborations with BMW Group Research and Google DeepMind Munich.",
+    "objectives": [
+      "research_collaboration",
+      "network_expansion"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
+  },
+  {
+    "id": "supervisor-33",
+    "firstName": "Andreas",
+    "lastName": "Krause",
+    "email": "andreas.krause@ethz.ch",
+    "title": "Prof. Dr.",
+    "universityId": "uni-12",
+    "researchInterests": [
+      "Bayesian optimization",
+      "safe reinforcement learning",
+      "active learning",
+      "ML for science"
+    ],
+    "about": "Full professor at ETH Zürich's Department of Computer Science and director of the ETH AI Center. My research focuses on learning systems that are efficient, safe, and reliable. I lead collaborative projects with ABB and Siemens on safe AI for industrial control systems.",
+    "objectives": [
+      "research_collaboration",
+      "industry_projects",
+      "network_expansion"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-04"
+    ]
+  },
+  {
+    "id": "supervisor-34",
+    "firstName": "Sabine",
+    "lastName": "Süsstrunk",
+    "email": "sabine.susstrunk@epfl.ch",
+    "title": "Prof. Dr.",
+    "universityId": "uni-13",
+    "researchInterests": [
+      "computational imaging",
+      "deep learning for vision",
+      "image quality",
+      "color science"
+    ],
+    "about": "Full professor at EPFL's School of Computer and Communication Sciences. I lead the Image and Visual Representation Lab (IVRL) and co-direct the EPFL Center for Imaging. My group collaborates with industry partners on applications of deep learning to image restoration, enhancement, and analysis.",
+    "objectives": [
+      "research_collaboration",
+      "student_mentorship"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
+  },
+  {
+    "id": "supervisor-35",
+    "firstName": "Bettina",
+    "lastName": "Rinner",
+    "email": "bettina.rinner@tuwien.ac.at",
+    "title": "Ass.-Prof. Dr.",
+    "universityId": "uni-14",
+    "researchInterests": [
+      "explainable AI",
+      "trustworthy ML",
+      "AI ethics",
+      "fairness in machine learning"
+    ],
+    "about": "Assistant professor at TU Wien's Faculty of Informatics in the Machine Learning Research Unit. My research addresses the societal and technical challenges of deploying AI in high-stakes domains including healthcare, justice, and infrastructure. I supervise thesis projects on XAI and algorithmic fairness in collaboration with Siemens Austria and the Austrian Institute of Technology.",
+    "objectives": [
+      "research_collaboration",
+      "student_mentorship",
+      "project_management"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-05"
+    ]
+  },
+  {
+    "id": "supervisor-36",
+    "firstName": "Davide",
+    "lastName": "Scaramuzza",
+    "email": "davide.scaramuzza@uzh.ch",
+    "title": "Prof. Dr.",
+    "universityId": "uni-16",
+    "researchInterests": [
+      "drone autonomy",
+      "agile flight",
+      "event cameras",
+      "deep reinforcement learning for flight"
+    ],
+    "about": "Full professor and head of the Robotics and Perception Group at UZH. My lab is internationally recognized for breakthroughs in autonomous drone flight using deep RL and neuromorphic vision sensors. We collaborate with Intel, Sony, and the Swiss National Science Foundation. Our research has been featured in Nature and Science.",
+    "objectives": [
+      "research_collaboration",
+      "industry_projects",
+      "network_expansion"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ]
   }
 ]

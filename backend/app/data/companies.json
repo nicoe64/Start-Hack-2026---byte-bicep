@@ -151,5 +151,180 @@
       "AI Research",
       "Robotics"
     ]
+  },
+
+
+
+
+
+  
+    {
+    "id": "company-20",
+    "name": "BMW Group",
+    "country": "DE",
+    "city": "Munich",
+    "industry": "Automotive & Mobility",
+    "size": "enterprise",
+    "about": "BMW Group is a global leader in premium automobiles and motorcycles. The AI Research division works on autonomous driving perception, reinforcement learning for control systems, predictive maintenance, and manufacturing intelligence. Strong university partnerships with TUM and THI through joint research chairs and sponsored thesis programs.",
+    "domains": [
+      "bmwgroup.com"
+    ]
+  },
+  {
+    "id": "company-21",
+    "name": "Siemens AG",
+    "country": "DE",
+    "city": "Munich",
+    "industry": "Industrial Automation & AI",
+    "size": "enterprise",
+    "about": "Siemens is a global technology powerhouse in industrial automation, digitalization, and AI. Key AI applications include predictive maintenance, digital twins for manufacturing, and AI-powered smart grid management. The Siemens AI Lab in Munich and the R&D center in Erlangen collaborate with universities across Germany and Austria.",
+    "domains": [
+      "siemens.com"
+    ]
+  },
+  {
+    "id": "company-22",
+    "name": "Robert Bosch GmbH",
+    "country": "DE",
+    "city": "Stuttgart",
+    "industry": "Technology & Engineering",
+    "size": "enterprise",
+    "about": "Bosch is a leading global supplier of technology and services with a major AI research presence. The Bosch Center for Artificial Intelligence (BCAI) in Tübingen focuses on fundamental ML research including few-shot learning, sim-to-real transfer, and AI for embedded systems. Close collaborations with University of Tübingen and TU Munich.",
+    "domains": [
+      "bosch.com"
+    ]
+  },
+  {
+    "id": "company-23",
+    "name": "Cariad SE",
+    "country": "DE",
+    "city": "Ingolstadt",
+    "industry": "Automotive Software",
+    "size": "large",
+    "about": "Cariad is the Volkswagen Group's software company, building the unified software and AI platform for all VW Group brands including Audi, Porsche, and Volkswagen. Focus areas include AI-driven ADAS, reinforcement learning for self-driving, and cloud-connected vehicle intelligence. Office in Ingolstadt with direct ties to THI.",
+    "domains": [
+      "cariad.technology"
+    ]
+  },
+  {
+    "id": "company-24",
+    "name": "Aleph Alpha",
+    "country": "DE",
+    "city": "Heidelberg",
+    "industry": "AI / Large Language Models",
+    "size": "startup",
+    "about": "Aleph Alpha is Europe's leading sovereign AI company, developing large language models (LLMs) and multimodal AI. Their Luminous model family is designed for enterprise and government use cases. Focused on explainability, data sovereignty, and European AI independence. Backed by Bosch, SAP, and the German government.",
+    "domains": [
+      "aleph-alpha.com"
+    ]
+  },
+  {
+    "id": "company-25",
+    "name": "DeepMind (Google) – Munich Office",
+    "country": "DE",
+    "city": "Munich",
+    "industry": "AI Research",
+    "size": "enterprise",
+    "about": "Google DeepMind's Munich office focuses on applied AI research, particularly in reinforcement learning, scientific discovery, and AI for robotics. The team collaborates with TUM and the Max Planck Institute for Intelligent Systems on fundamental and applied research. Offers research internships and thesis collaborations for top students.",
+    "domains": [
+      "deepmind.com"
+    ]
+  },
+  {
+    "id": "company-26",
+    "name": "ABB",
+    "country": "CH",
+    "city": "Zurich",
+    "industry": "Industrial Robotics & Automation",
+    "size": "enterprise",
+    "about": "ABB is a global leader in industrial robotics and automation technology headquartered in Zurich. The ABB Corporate Research Center in Baden-Dättwil works on AI for robot control, machine vision, and collaborative robotics. ABB collaborates extensively with ETH Zürich on joint thesis and research projects.",
+    "domains": [
+      "abb.com"
+    ]
+  },
+  {
+    "id": "company-27",
+    "name": "AUDI AG",
+    "country": "DE",
+    "city": "Ingolstadt",
+    "industry": "Automotive",
+    "size": "enterprise",
+    "about": "AUDI AG is a premium automotive brand and technology company headquartered in Ingolstadt, Bavaria. The AI and Data division works on autonomous driving stacks, computer vision for quality control, and AI-driven manufacturing. Maintains an active thesis and dual-study partnership program with THI and TUM.",
+    "domains": [
+      "audi.de",
+      "audi.com"
+    ]
+  },
+  {
+    "id": "company-28",
+    "name": "Airbus",
+    "country": "DE",
+    "city": "Munich",
+    "industry": "Aerospace & Defence",
+    "size": "enterprise",
+    "about": "Airbus is a world leader in aeronautics, space, and related services. The AI Research Lab in Munich and the Toulouse engineering center work on deep learning for structural inspection, reinforcement learning for flight control optimization, and predictive maintenance. Offers internship and thesis programs in AI for engineering applications.",
+    "domains": [
+      "airbus.com"
+    ]
+  },
+  {
+    "id": "company-29",
+    "name": "Celonis",
+    "country": "DE",
+    "city": "Munich",
+    "industry": "AI / Process Mining",
+    "size": "large",
+    "about": "Celonis is the global leader in process mining and execution management, using AI to analyze and optimize business processes. Founded as a TUM spin-off and now a leading unicorn, Celonis applies ML to process graphs, anomaly detection, and intelligent automation. Strong connections to TUM and the Munich AI startup ecosystem.",
+    "domains": [
+      "celonis.com"
+    ]
+  },
+  {
+    "id": "company-30",
+    "name": "Zühlke Engineering",
+    "country": "CH",
+    "city": "Zurich",
+    "industry": "Technology Consulting & AI",
+    "size": "large",
+    "about": "Zühlke is a Swiss innovation service provider specializing in AI-powered product development, embedded systems, and digital transformation. Works with clients across medtech, finance, and industry. Offers thesis collaborations focused on applied ML, edge AI deployment, and human-centered AI design.",
+    "domains": [
+      "zuehlke.com"
+    ]
+  },
+  {
+    "id": "company-31",
+    "name": "ANYbotics",
+    "country": "CH",
+    "city": "Zurich",
+    "industry": "Robotics",
+    "size": "startup",
+    "about": "ANYbotics is an ETH Zürich spin-off building autonomous legged robots for industrial inspection. Their flagship robot ANYmal uses deep reinforcement learning for locomotion and navigation in complex environments. ANYbotics actively collaborates with ETH for thesis projects in sim-to-real transfer and robot perception.",
+    "domains": [
+      "anybotics.com"
+    ]
+  },
+  {
+    "id": "company-32",
+    "name": "Dynatrace",
+    "country": "AT",
+    "city": "Linz",
+    "industry": "AI / Observability Software",
+    "size": "large",
+    "about": "Dynatrace is an Austrian-born global software intelligence company providing AI-powered observability, cloud monitoring, and AIOps. Their Davis AI engine processes billions of dependencies in real time. Based in Linz with engineering hubs in Vienna, Dynatrace collaborates with TU Wien and JKU Linz on AI and distributed systems research.",
+    "domains": [
+      "dynatrace.com"
+    ]
+  },
+  {
+    "id": "company-33",
+    "name": "ibb robotics",
+    "country": "DE",
+    "city": "Ingolstadt",
+    "industry": "Robotics & AI",
+    "size": "startup",
+    "about": "ibb robotics is a Bavarian startup developing AI-powered collaborative robots and pick-and-place systems for industrial assembly lines. They integrate deep learning object detection with force-torque feedback for adaptive grasping. Active thesis partner with THI, offering BSc and MSc thesis projects in applied robot learning.",
+    "domains": [
+      "ibb-robotics.de"
+    ]
   }
 ]

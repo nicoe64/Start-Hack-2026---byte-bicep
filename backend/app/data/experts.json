@@ -358,5 +358,147 @@
     "about": null,
     "objectives": ["recruiting", "brand_visibility"],
     "fieldIds": ["field-04", "field-19"]
+  },
+
+
+
+
+
+
+
+
+
+
+
+    {
+    "id": "expert-40",
+    "firstName": "Stefan",
+    "lastName": "Müller",
+    "email": "stefan.mueller@bmwgroup.com",
+    "title": "Senior Research Engineer – AI & Autonomous Driving",
+    "companyId": "company-20",
+    "offerInterviews": true,
+    "about": "I lead a team at BMW Group Research focused on deep reinforcement learning for vehicle control and decision-making. Previously a postdoc at TUM's Chair of Robotics. I co-supervise BSc and MSc thesis students and am always looking for talent interested in the intersection of RL and autonomous mobility.",
+    "objectives": [
+      "recruiting",
+      "research_collaboration",
+      "student_mentorship"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
+  },
+  {
+    "id": "expert-41",
+    "firstName": "Laura",
+    "lastName": "Hartmann",
+    "email": "laura.hartmann@cariad.technology",
+    "title": "AI Research Lead – ADAS",
+    "companyId": "company-23",
+    "offerInterviews": true,
+    "about": "I manage Cariad's applied AI research for advanced driver assistance systems, focusing on end-to-end driving models and sensor fusion with LiDAR and cameras. I hold a PhD from ETH Zürich in computer vision. Actively co-supervising thesis students from THI and TUM.",
+    "objectives": [
+      "recruiting",
+      "research_collaboration",
+      "brand_visibility"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
+  },
+  {
+    "id": "expert-42",
+    "firstName": "David",
+    "lastName": "Fischer",
+    "email": "david.fischer@bosch.com",
+    "title": "Research Scientist – Bosch Center for AI (BCAI)",
+    "companyId": "company-22",
+    "offerInterviews": false,
+    "about": "Researcher at BCAI focusing on sim-to-real transfer for robotic manipulation and uncertainty quantification in deep learning. My work bridges fundamental ML research and embedded deployment on Bosch hardware platforms. I hold a PhD from the University of Tübingen and mentor thesis students in applied robot learning.",
+    "objectives": [
+      "research_collaboration",
+      "student_mentorship"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ]
+  },
+  {
+    "id": "expert-43",
+    "firstName": "Petra",
+    "lastName": "Kessler",
+    "email": "petra.kessler@siemens.com",
+    "title": "Principal AI Engineer – Digital Industries",
+    "companyId": "company-21",
+    "offerInterviews": true,
+    "about": "I lead AI initiatives for Siemens Digital Industries, applying machine learning to predictive quality, anomaly detection, and process optimization in smart factories. Formerly a researcher at TU Munich. I actively support thesis students working on industrial AI and am passionate about responsible deployment of AI in manufacturing.",
+    "objectives": [
+      "recruiting",
+      "research_collaboration",
+      "brand_visibility"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-06"
+    ]
+  },
+  {
+    "id": "expert-44",
+    "firstName": "Luca",
+    "lastName": "Gambardella",
+    "email": "luca.gambardella@idsia.ch",
+    "title": "Director",
+    "companyId": "company-30",
+    "offerInterviews": false,
+    "about": "Director of IDSIA – the Dalle Molle Institute for AI Research in Lugano, Switzerland. Expert in deep learning, reinforcement learning, and evolutionary computation. IDSIA is one of the birthplaces of modern deep learning. We collaborate with Swiss industry partners on applied RL and neural network research.",
+    "objectives": [
+      "research_collaboration",
+      "network_expansion"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-04"
+    ]
+  },
+  {
+    "id": "expert-45",
+    "firstName": "Hannah",
+    "lastName": "König",
+    "email": "hannah.koenig@anybotics.com",
+    "title": "Robot Learning Engineer",
+    "companyId": "company-31",
+    "offerInterviews": true,
+    "about": "I develop reinforcement learning pipelines for ANYmal's locomotion and terrain traversal at ANYbotics. My work focuses on massively parallel GPU-based simulation in Isaac Gym and sim-to-real transfer. I have a master's from ETH Zürich in robotics and love working with motivated thesis students on cutting-edge robot learning problems.",
+    "objectives": [
+      "recruiting",
+      "research_collaboration",
+      "student_mentorship"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-03"
+    ]
+  },
+  {
+    "id": "expert-46",
+    "firstName": "Markus",
+    "lastName": "Reiter",
+    "email": "markus.reiter@audi.de",
+    "title": "Head of AI Research – AUDI AG",
+    "companyId": "company-27",
+    "offerInterviews": true,
+    "about": "I lead AUDI's central AI research unit in Ingolstadt, covering computer vision for quality inspection, generative AI for vehicle design, and reinforcement learning for production robotics. I hold a PhD in ML from LMU Munich and maintain close ties with THI as a thesis co-supervisor and guest lecturer.",
+    "objectives": [
+      "recruiting",
+      "brand_visibility",
+      "research_collaboration"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ]
   }
 ]

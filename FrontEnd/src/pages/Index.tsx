@@ -25,57 +25,60 @@ export interface SelectedNodeSummary {
 export type ChatMode = "advisor" | "proposal";
 
 interface IndexProps {
-  sharedGraphData: BackendGraphResponse | null;
+  graphData: BackendGraphResponse | null;
   onGraphDataChange: (data: BackendGraphResponse | null) => void;
   onEnrichedProfileChange: (profile: Record<string, unknown>) => void;
+  messages: { role: string; content: string }[];
+  onMessagesChange: (msgs: { role: string; content: string }[]) => void;
+  chatInput: string;
+  onChatInputChange: (v: string) => void;
 }
 
-const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: IndexProps) => {
+const Index = ({
+  graphData,
+  onGraphDataChange,
+  onEnrichedProfileChange,
+  messages,
+  onMessagesChange,
+  chatInput,
+  onChatInputChange,
+}: IndexProps) => {
   const [activePathId, setActivePathId] = useState("path-1");
-
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogNodeData, setDialogNodeData] = useState<Record<string, unknown> | null>(null);
-
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
   const [selectedNodeSummaries, setSelectedNodeSummaries] = useState<SelectedNodeSummary[]>([]);
-
   const [proposalOpen, setProposalOpen] = useState(false);
   const [proposalFields, setProposalFields] = useState<ProposalField[]>(buildDefaultFields());
-  const [isGeneratingProposal, setIsGeneratingProposal] = useState(false);
-
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [isGeneratingProposal] = useState(false);
   const [chatMode, setChatMode] = useState<ChatMode>("advisor");
-  const [graphData, setGraphData] = useState<BackendGraphResponse | null>(sharedGraphData);
   const [questionCount, setQuestionCount] = useState(0);
   const [maxQuestions] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
+  const welcomeSent = useRef(false);
 
   const proposalFieldsRef = useRef(proposalFields);
   useEffect(() => { proposalFieldsRef.current = proposalFields; }, [proposalFields]);
 
-  // Welcome
+  // Welcome — only once, only if no messages yet
   useEffect(() => {
+    if (welcomeSent.current || messages.length > 0) return;
+    welcomeSent.current = true;
     const fetchWelcome = async () => {
       try {
         setIsLoading(true);
         const res = await sendMessage(SESSION_ID, "");
-        setMessages([{ role: "assistant", content: res.response }]);
+        onMessagesChange([{ role: "assistant", content: res.response }]);
       } catch {
-        setMessages([{ role: "assistant", content: "Welcome! Tell me about your thesis interests." }]);
+        onMessagesChange([{ role: "assistant", content: "Welcome! Tell me about your thesis interests." }]);
       } finally {
         setIsLoading(false);
       }
     };
     fetchWelcome();
-  }, []);
+  }, []); // eslint-disable-line
 
-  // Sync graphData up to App
-  const updateGraphData = useCallback((data: BackendGraphResponse | null) => {
-    setGraphData(data);
-    onGraphDataChange(data);
-  }, [onGraphDataChange]);
-
-  // Node click → toggle green
+  // Node click → toggle green selection
   const handleNodeClick = useCallback((nodeId: string, nodeData: Record<string, unknown>) => {
     setSelectedNodeIds((prev) => {
       const next = new Set(prev);
@@ -97,72 +100,59 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
     });
   }, []);
 
-  // Info button → detail dialog
+  // Info button → detail dialog only
   const handleExpandNode = useCallback((nodeData: Record<string, unknown>) => {
     setDialogNodeData(nodeData);
     setDialogOpen(true);
   }, []);
 
-  // Open proposal
-  const openProposal = useCallback(async (withNodes: boolean) => {
+  // Open proposal panel — NEVER writes to fields, only sends chat message
+  const openProposal = useCallback((withNodes: boolean) => {
     setProposalOpen(true);
     setChatMode("proposal");
 
     if (withNodes && selectedNodeSummaries.length > 0) {
-      setIsGeneratingProposal(true);
-      const nodeContext = selectedNodeSummaries
-        .map((n) => `[${n.type.toUpperCase()}] ${n.label}: ${n.reasoning ?? ""}`)
-        .join("\n");
-      try {
-        const res = await sendMessage(
-          SESSION_ID,
-          `I want to write a research proposal. Here are the entities I'm interested in:\n${nodeContext}\n\nGive me a suggested TITLE:, a TARGET INSTITUTION: line, and a MOTIVATION: paragraph I can start from.`,
-          Array.from(selectedNodeIds)
-        );
-        const text = res.response;
-        const extract = (label: string) => {
-          const match = text.match(new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n[A-Z ]+:|$)`, "i"));
-          return match ? match[1].trim() : "";
-        };
-        setProposalFields((prev) => prev.map((f) => {
-          if (f.id === "title") return { ...f, value: extract("TITLE") || f.value };
-          if (f.id === "institution") return { ...f, value: extract("INSTITUTION") || extract("TARGET INSTITUTION") || f.value };
-          if (f.id === "motivation") return { ...f, value: extract("MOTIVATION") || f.value };
-          return f;
-        }));
-        setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
-      } catch { /* silent */ }
-      finally { setIsGeneratingProposal(false); }
-    } else {
-      setMessages((prev) => [...prev, {
+      const nodeList = selectedNodeSummaries.map((n) => `${n.label} (${n.type})`).join(", ");
+      onMessagesChange([...messages, {
         role: "assistant",
-        content: "I'm now in Proposal Assistant mode. Tell me which field you need help with — for example: \"Give me a motivation paragraph for a thesis on computer vision at a manufacturing company.\" Or click the ✦ AI tip button next to any field.",
+        content: `I'm now in Proposal Assistant mode. You've selected: ${nodeList}. Click the ✦ AI tip button next to any field to get a suggestion, or ask me anything about your proposal here.`,
+      }]);
+    } else {
+      onMessagesChange([...messages, {
+        role: "assistant",
+        content: "I'm now in Proposal Assistant mode. Click the ✦ AI tip button next to any field to get suggestions, or ask me anything about your proposal here.",
       }]);
     }
-  }, [selectedNodeIds, selectedNodeSummaries]);
+  }, [selectedNodeSummaries, messages, onMessagesChange]);
 
   const closeProposal = useCallback(() => {
     setProposalOpen(false);
     setChatMode("advisor");
   }, []);
 
+  // AI tip — sends to chat only, NEVER touches field value
   const handleAIFieldHelp = useCallback(async (fieldId: string, currentValue: string) => {
     const field = proposalFields.find((f) => f.id === fieldId);
     if (!field) return;
     const nodeCtx = selectedNodeSummaries.length > 0
-      ? `Relevant entities: ${selectedNodeSummaries.map((n) => `${n.label} (${n.type})`).join(", ")}`
+      ? `Relevant entities: ${selectedNodeSummaries.map((n) => `${n.label} (${n.type})`).join(", ")}.`
       : "";
-    const prompt = `Help me write the "${field.label}" section of my research proposal. ${nodeCtx} ${currentValue ? `My current draft: "${currentValue}"` : "I haven't written anything yet."} Give me a concrete example or suggestion I can adapt.`;
-    setMessages((prev) => [...prev, { role: "user", content: prompt }]);
+    const prompt = `Give me a concrete suggestion for the "${field.label}" section of my research proposal. ${nodeCtx} ${currentValue ? `My current draft: "${currentValue.slice(0, 200)}"` : "I haven't written anything yet."} Keep it concise and directly usable.`;
+
+    const newMessages = [...messages,
+      { role: "user", content: `AI tip for: ${field.label}` },
+    ];
+    onMessagesChange(newMessages);
     setIsLoading(true);
     try {
       const res = await sendMessage(SESSION_ID, prompt, Array.from(selectedNodeIds));
-      setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
+      onMessagesChange([...newMessages, { role: "assistant", content: res.response }]);
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Couldn't get AI help right now." }]);
+      onMessagesChange([...newMessages, { role: "assistant", content: "Couldn't get AI help right now. Try typing your question directly." }]);
     } finally { setIsLoading(false); }
-  }, [proposalFields, selectedNodeIds, selectedNodeSummaries]);
+  }, [proposalFields, selectedNodeIds, selectedNodeSummaries, messages, onMessagesChange]);
 
+  // Main send
   const handleSendMessage = useCallback(async (text: string, nodeIds: string[] = []) => {
     if (!text.trim() || isLoading) return;
     const ids = nodeIds.length > 0 ? nodeIds : Array.from(selectedNodeIds);
@@ -171,32 +161,32 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
     if (chatMode === "proposal") {
       const filled = proposalFieldsRef.current.filter((f) => f.value.trim());
       if (filled.length > 0) {
-        const context = filled.map((f) => `${f.label}: ${f.value.slice(0, 120)}${f.value.length > 120 ? "..." : ""}`).join("\n");
+        const context = filled.map((f) => `${f.label}: ${f.value.slice(0, 100)}${f.value.length > 100 ? "..." : ""}`).join("\n");
         fullText = `[Proposal draft context:\n${context}]\n\n${text}`;
       }
     }
 
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    const newMessages = [...messages, { role: "user", content: text }];
+    onMessagesChange(newMessages);
+    onChatInputChange("");
     setIsLoading(true);
 
     try {
       const res: ChatResponse = await sendMessage(SESSION_ID, fullText, ids);
-      setMessages((prev) => [...prev, { role: "assistant", content: res.response }]);
+      onMessagesChange([...newMessages, { role: "assistant", content: res.response }]);
       setQuestionCount(res.question_count);
 
-      // Sync enriched profile up
       if (res.enriched_profile && Object.keys(res.enriched_profile).length > 0) {
         onEnrichedProfileChange(res.enriched_profile);
       }
-
       if (res.graph && res.graph.paths && res.graph.paths.length > 0) {
-        updateGraphData(res.graph);
+        onGraphDataChange(res.graph);
         setActivePathId(res.graph.paths[0].id);
       }
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: "Something went wrong. Please try again." }]);
+      onMessagesChange([...newMessages, { role: "assistant", content: "Something went wrong. Please try again." }]);
     } finally { setIsLoading(false); }
-  }, [isLoading, selectedNodeIds, chatMode, updateGraphData, onEnrichedProfileChange]);
+  }, [isLoading, selectedNodeIds, chatMode, messages, onMessagesChange, onChatInputChange, onGraphDataChange, onEnrichedProfileChange]);
 
   const handleFieldChange = useCallback((fieldId: string, value: string) => {
     setProposalFields((prev) => prev.map((f) => (f.id === fieldId ? { ...f, value } : f)));
@@ -248,13 +238,10 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
               </div>
             )}
 
+            {/* Progress bar only — no counter text */}
             {!graphData && questionCount > 0 && (
               <div className="pointer-events-auto mt-4 w-64">
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                  <span>Gathering info...</span>
-                  <span>{questionCount}/{maxQuestions}</span>
-                </div>
-                <div className="mt-1 h-1.5 w-full rounded-full bg-secondary">
+                <div className="h-1.5 w-full rounded-full bg-secondary">
                   <div
                     className="h-full rounded-full bg-primary transition-all duration-500"
                     style={{ width: `${(questionCount / maxQuestions) * 100}%` }}
@@ -277,7 +264,7 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
             </div>
           )}
 
-          {/* Graph or empty */}
+          {/* Graph or empty state */}
           {graphData ? (
             <GraphView
               backendData={graphData}
@@ -288,11 +275,9 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
             />
           ) : (
             <div className="flex h-full items-center justify-center">
-              <div className="text-center">
-                <p className="font-serif text-xl text-muted-foreground/50">
-                  {isLoading ? "Thinking..." : "Chat with the AI advisor to discover your paths."}
-                </p>
-              </div>
+              <p className="font-serif text-xl text-muted-foreground/50">
+                {isLoading ? "Thinking..." : "Chat with the AI advisor to discover your paths."}
+              </p>
             </div>
           )}
 
@@ -349,6 +334,8 @@ const Index = ({ sharedGraphData, onGraphDataChange, onEnrichedProfileChange }: 
 
       <AIConciergeDrawer
         messages={messages}
+        input={chatInput}
+        onInputChange={onChatInputChange}
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
         questionCount={questionCount}
