@@ -13,6 +13,7 @@ RULES:
 
 FORMAT:
 - Max 2 sentences before the question
+- Keep it very short.
 - The question itself: short, with concrete options
 - Total response: max 3 sentences
 

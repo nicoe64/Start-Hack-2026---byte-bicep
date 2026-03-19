@@ -1,12 +1,15 @@
 {
   "name": "Felix Boyke",
-  "email": "felix.boyke@tum.de",
+  "email": "feb3560@thi.de",
   "university": "Technische Hochschule Ingolstadt",
+  "university_id": "uni-10",
   "degree_level": "BSc",
-  "study_program": "Artificial Intelligence",
+  "study_program": "Artificial Intellgence",
+  "study_program_id": "prog-28",
   "field_interests": [
     "Artificial Intelligence",
-    "Computer Science"
+    "Computer Science",
+    "Mechanical Engineering"
   ],
   "skills": [
     "Python",
@@ -14,6 +17,6 @@
     "Deep Learning",
     "Reinforcement Learning"
   ],
-  "about": "BSc student in Artificial Intelligence with a strong interest in machine learning and intelligent systems.",
-  "end_date": "2027-06"
+  "about": "BSc student passionate about robot learning and autonomous systems. Previous research internship at Airbus Toulouse.",
+  "end_date": "2027-02"
 }

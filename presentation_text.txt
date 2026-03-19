@@ -1,0 +1,11 @@
+eine Antwort: "I'm really into reinforcement learning for robotics, especially making robots learn from experience safely"
+
+→ Triggert: Safe RL Topics bei BMW, Airbus, TUM Prof. Schoellig
+Frage 2 vom Advisor: "Industry oder akademisch?"
+
+Deine Antwort: "I'd love to work with a company that has real robots — I did an internship at Airbus and want that hands-on experience again"
+
+→ Triggert: Airbus, BMW als Top-Companies, IDSIA als Research-Alternative
+Frage 3 vom Advisor: "Praktisch oder theoretisch?"
+
+Deine Antwort: "Practical — I want to build prototypes and test on real hardware, not just simulations"

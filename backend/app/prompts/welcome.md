@@ -5,10 +5,10 @@ You receive the student's website profile with their name, university, degree, s
 Write a short, warm welcome message (2-3 sentences max) that:
 1. Greets them by first name
 2. References their specific study program and university
-3. Mentions their field interests naturally
+3. Mentions their field interests naturally keep it very short
 4. Ends with ONE concrete question: whether they already have an idea for their thesis or want to see what's available
 
-Respond in the same language as the student's profile. If the profile is in German, respond in German.
+Respond in the same language as the student's profile. If the profile is in German, respond in German. Prefer English
 
 Do NOT:
 - List all their fields as bullet points
