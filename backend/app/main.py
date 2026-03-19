@@ -1,7 +1,7 @@
 """
 main.py — FastAPI App.
-Endpoints: POST /api/chat, GET /api/profile, GET /api/graph
-RAG wird beim Start initialisiert.
+Calls nodes directly (same logic as test_full_flow.py).
+No LangGraph overhead — simpler, faster, works.
 """
 import json
 import os
@@ -12,7 +12,14 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from app.agents.graphs.main_graph import build_main_graph
+from app.agents.nodes.chat.welcome_node import WelcomeNode
+from app.agents.nodes.profile.profile_parser_node import ProfileParserNode
+from app.agents.nodes.routing.intent_router_node import IntentRouterNode
+from app.agents.nodes.chat.advisor_node import AdvisorNode
+from app.agents.nodes.retrieval.query_builder_node import QueryBuilderNode
+from app.agents.nodes.retrieval.candidate_search_node import CandidateSearchNode
+from app.agents.nodes.retrieval.compatibility_filter_node import CompatibilityFilterNode
+from app.agents.nodes.assembly.path_composer_node import PathComposerNode
 from app.config import DATA_DIR
 from app.rag.platform import get_platform_store
 
@@ -65,17 +72,12 @@ def get_or_create_session(session_id: str, website_profile: dict) -> dict:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize RAG
     store = get_platform_store()
     print(f"RAG ready: {store.count()} entities")
 
-    # Load test profile
     profile_path = os.path.join(DATA_DIR, "test_website_profile.json")
     with open(profile_path, encoding="utf-8") as f:
         app.state.website_profile = json.load(f)
-
-    # Compile graph
-    app.state.graph = build_main_graph()
 
     print(f"Backend ready. Student: {app.state.website_profile['name']}")
     yield
@@ -87,16 +89,124 @@ app = FastAPI(title="Studyond Thesis Journey", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",   # Vite dev
-        "http://localhost:3000",   # Alternative
-        "http://localhost:4173",   # Vite preview
-        "*",                       # Allow all for hackathon
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ── Pipeline Functions ──────────────────────────
+
+async def run_welcome(session: dict) -> dict:
+    """First turn: personalized welcome."""
+    state = {
+        "session_id": "api",
+        "node_results": [],
+        "output": {},
+        "message": "",
+        "website_profile": session["website_profile"],
+        "enriched_profile": session["enriched_profile"],
+        "signals": session["signals"],
+        "intent": "welcome",
+        "chat_history": [],
+        "response": "",
+        "question_count": 0,
+    }
+    result = await WelcomeNode.run(state)
+    return result
+
+
+async def run_chat_turn(session: dict, message: str) -> dict:
+    """Normal chat: profile_parser → intent_router → advisor OR generate pipeline."""
+
+    # Count BEFORE building state
+    session["question_count"] += 1
+    question_count = session["question_count"]
+
+    state = {
+        "session_id": "api",
+        "node_results": [],
+        "output": {},
+        "message": message,
+        "website_profile": session["website_profile"],
+        "enriched_profile": session["enriched_profile"],
+        "signals": session["signals"],
+        "intent": "",
+        "chat_history": session["chat_history"],
+        "response": "",
+        "question_count": question_count,
+        "search_query": "",
+        "candidates": {},
+        "filtered_candidates": {},
+        "graph_output": {},
+        "current_graph": session.get("current_graph", {}),
+    }
+
+    # 1. Profile Parser (always)
+    try:
+        result = await ProfileParserNode.run(state)
+        session["enriched_profile"] = result.get("enriched_profile", session["enriched_profile"])
+    except Exception as e:
+        print(f"  [ProfileParser ERROR: {e}]")
+        result = state
+
+    # 2. Intent Router
+    result["enriched_profile"] = session["enriched_profile"]
+    result["question_count"] = question_count
+    result = await IntentRouterNode.run(result)
+    intent = result["intent"]
+
+    print(f"  [Message {question_count}/3 | Intent: {intent}]")
+
+    if intent == "generate":
+        # 3a. Generate Pipeline
+        result = await run_generate_pipeline(result, session)
+    else:
+        # 3b. Advisor
+        result["enriched_profile"] = session["enriched_profile"]
+        result["question_count"] = question_count
+        result = await AdvisorNode.run(result)
+
+    result["intent"] = intent
+    result["question_count"] = question_count
+    return result
+
+
+async def run_generate_pipeline(state: dict, session: dict) -> dict:
+    """RAG → Filter → Compose paths."""
+    print("  [Generating paths...]")
+
+    state["enriched_profile"] = session["enriched_profile"]
+    state["signals"] = session["signals"]
+    state["website_profile"] = session["website_profile"]
+
+    # Query Builder
+    result = await QueryBuilderNode.run(state)
+    print(f"  [Query: {result.get('search_query', '')[:80]}]")
+
+    # Candidate Search
+    result = await CandidateSearchNode.run(result)
+    for typ, items in result.get("candidates", {}).items():
+        print(f"  [Search] {typ}: {len(items)} found")
+
+    # Compatibility Filter
+    result["website_profile"] = session["website_profile"]
+    result["enriched_profile"] = session["enriched_profile"]
+    result["signals"] = session["signals"]
+    result = await CompatibilityFilterNode.run(result)
+
+    for typ, items in result.get("filtered_candidates", {}).items():
+        print(f"  [Filter] {typ}: {len(items)} remaining")
+
+    # Path Composer
+    print("  [Composing paths...]")
+    result = await PathComposerNode.run(result)
+
+    graph = result.get("graph_output", {})
+    print(f"  [Result] {len(graph.get('paths', []))} paths, {len(graph.get('nodes', []))} nodes")
+
+    return result
 
 
 # ── POST /api/chat ──────────────────────────────
@@ -109,59 +219,49 @@ async def chat_endpoint(request: ChatRequest, req: Request):
             req.app.state.website_profile,
         )
 
-        # Question count hochzählen wenn User eine Nachricht schickt
-        if request.message.strip():
-            session["question_count"] += 1
+        is_user_message = bool(request.message.strip())
 
-        state = {
-            "session_id":           request.session_id,
-            "node_results":         [],
-            "output":               {},
-            "message":              request.message,
-            "website_profile":      session["website_profile"],
-            "enriched_profile":     session["enriched_profile"],
-            "signals":              session["signals"],
-            "intent":               "",
-            "completeness":         {},
-            "chat_history":         session["chat_history"],
-            "response":             "",
-            "question_count":       session["question_count"],
-            "search_query":         "",
-            "candidates":           {},
-            "filtered_candidates":  {},
-            "graph_output":         {},
-            "current_graph":        session.get("current_graph", {}),
-            "selected_nodes":       request.selected_nodes,
-        }
+        if not is_user_message and len(session["chat_history"]) == 0:
+            # Welcome
+            result = await run_welcome(session)
+            intent = "welcome"
+            session["chat_history"].append({"role": "assistant", "content": result.get("response", "")})
 
-        result = await req.app.state.graph.ainvoke(state)
-
-        # Session updaten
-        session["enriched_profile"] = result.get("enriched_profile", session["enriched_profile"])
-        session["question_count"] = result.get("question_count", session["question_count"])
-
-        if request.message.strip():
+        elif is_user_message:
+            # Chat turn
             session["chat_history"].append({"role": "user", "content": request.message})
-        if result.get("response"):
-            session["chat_history"].append({"role": "assistant", "content": result["response"]})
+            result = await run_chat_turn(session, request.message)
+            intent = result.get("intent", "answer")
 
-        if result.get("graph_output") and result["graph_output"].get("paths"):
-            session["current_graph"] = result["graph_output"]
+            # Save assistant response to history
+            if result.get("response"):
+                session["chat_history"].append({"role": "assistant", "content": result["response"]})
 
-        # Graph nur senden wenn es Pfade gibt
+            # Save graph if generated
+            if result.get("graph_output") and result["graph_output"].get("paths"):
+                session["current_graph"] = result["graph_output"]
+
+        else:
+            # Empty message, not first turn
+            return ChatResponse(
+                response="",
+                intent="none",
+                enriched_profile=session["enriched_profile"],
+                question_count=session["question_count"],
+            )
+
+        # Build response
         graph_data = session.get("current_graph")
         if not graph_data or not graph_data.get("paths"):
             graph_data = None
 
         return ChatResponse(
             response=result.get("response", ""),
-            intent=result.get("intent", "welcome"),
+            intent=intent,
             enriched_profile=session["enriched_profile"],
             graph=graph_data,
             question_count=session["question_count"],
             max_questions=3,
-            suggestions=result.get("suggestions", []),
-            follow_up_questions=result.get("follow_up_questions", []),
         )
 
     except Exception as e:
@@ -170,21 +270,19 @@ async def chat_endpoint(request: ChatRequest, req: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── GET /api/profile ────────────────────────────
+# ── GET endpoints ───────────────────────────────
 
 @app.get("/api/profile/{session_id}")
 async def get_profile(session_id: str, req: Request):
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
-    session = sessions[session_id]
+    s = sessions[session_id]
     return {
-        "website_profile": session["website_profile"],
-        "enriched_profile": session["enriched_profile"],
-        "signals": session["signals"],
+        "website_profile": s["website_profile"],
+        "enriched_profile": s["enriched_profile"],
+        "signals": s["signals"],
     }
 
-
-# ── GET /api/graph/{session_id} ─────────────────
 
 @app.get("/api/graph/{session_id}")
 async def get_graph(session_id: str):
@@ -192,8 +290,6 @@ async def get_graph(session_id: str):
         raise HTTPException(status_code=404, detail="Session not found")
     return sessions[session_id].get("current_graph", {})
 
-
-# ── GET /api/health ─────────────────────────────
 
 @app.get("/api/health")
 async def health():
