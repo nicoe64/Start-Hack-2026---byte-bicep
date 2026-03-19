@@ -9,20 +9,20 @@ def load_prompt(filename: str) -> str:
         return f.read()
 
 
-async def call(system_prompt: str, message: str, temperature: float = 0.3) -> str:
+async def call(system_prompt: str, message: str, temperature: float = 0.3, max_tokens: int = 2000) -> str:
     from anthropic import AsyncAnthropic
     client = AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
     response = await client.messages.create(
         model=LLM_MODEL,
         system=system_prompt,
-        max_tokens=2000,
+        max_tokens=max_tokens,
         messages=[{"role": "user", "content": message}],
     )
     return response.content[0].text
 
 
-async def call_json(system_prompt: str, message: str, temperature: float = 0.3) -> dict:
-    raw = await call(system_prompt, message, temperature)
+async def call_json(system_prompt: str, message: str, temperature: float = 0.3, max_tokens: int = 4000) -> dict:
+    raw = await call(system_prompt, message, temperature, max_tokens)
     cleaned = raw.strip()
     if cleaned.startswith("```json"):
         cleaned = cleaned[7:]

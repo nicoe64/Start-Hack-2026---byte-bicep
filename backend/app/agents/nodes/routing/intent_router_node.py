@@ -1,10 +1,25 @@
+"""
+intent_router_node.py — Intent erkennen.
+Logik: 3 Fragen → automatisch generieren. User kann auch jederzeit manuell triggern.
+"""
 from typing import ClassVar
 from app.agents.state import IntentRouterOutput
 
 
-GENERATE_KEYWORDS = ["generier", "zeig mir pfade", "was gibt es", "zeig mir was", "pfade", "vorschläge"]
-CONFIRM_KEYWORDS  = ["ich nehme", "bestätigen", "pfad wählen", "diesen pfad", "das will ich"]
-REFINE_KEYWORDS   = ["doch lieber", "stattdessen", "nicht mehr", "lieber", "ändere", "eigentlich"]
+GENERATE_KEYWORDS = [
+    "generier", "zeig mir pfade", "zeig mir optionen", "pfade",
+    "generate", "show me paths", "show options", "find paths",
+]
+CONFIRM_KEYWORDS = [
+    "ich nehme", "bestätigen", "diesen pfad",
+    "i'll take", "confirm", "this path", "select",
+]
+REFINE_KEYWORDS = [
+    "doch lieber", "stattdessen", "ändere",
+    "rather", "instead", "change", "switch",
+]
+
+MAX_QUESTIONS = 3
 
 
 class IntentRouterNode:
@@ -13,22 +28,28 @@ class IntentRouterNode:
     @staticmethod
     async def run(state: dict) -> dict:
         message = state.get("message", "").lower()
+        question_count = state.get("question_count", 0)
         current_graph = state.get("current_graph", {})
 
-        # Reihenfolge: spezifischste Intents zuerst
         if any(kw in message for kw in CONFIRM_KEYWORDS):
             intent = "confirm"
         elif any(kw in message for kw in GENERATE_KEYWORDS):
             intent = "generate"
+        elif question_count >= MAX_QUESTIONS:
+            intent = "generate"  # Auto-generate nach 3 Fragen
         elif any(kw in message for kw in REFINE_KEYWORDS) and current_graph:
             intent = "refine"
         else:
-            # Default: answer (User beantwortet was / stellt Frage)
             intent = "answer"
 
         node_output = IntentRouterOutput(
             node=IntentRouterNode.name,
             intent=intent,
+            metadata={
+                "question_count": question_count,
+                "max_questions": MAX_QUESTIONS,
+                "auto_generated": question_count >= MAX_QUESTIONS and intent == "generate",
+            },
         )
 
         return {

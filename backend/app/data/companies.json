@@ -118,5 +118,38 @@
     "about": null,
     "size": "5001-10000",
     "domains": ["Manufacturing", "Transportation"]
+  },
+    {
+    "id": "company-16",
+    "name": "Airbus",
+    "description": "A global leader in aerospace, designing and manufacturing commercial aircraft, helicopters, and space systems.",
+    "about": "Airbus partners with top European universities on thesis projects in autonomous flight systems, computer vision for aircraft inspection, digital twins for manufacturing, and AI-driven predictive maintenance. Thesis students can work at facilities in Toulouse, Munich, or Hamburg.",
+    "size": "10001+",
+    "domains": [
+      "Aerospace",
+      "Defense & Space"
+    ]
+  },
+  {
+    "id": "company-17",
+    "name": "BMW",
+    "description": "A leading premium automobile manufacturer headquartered in Munich, pioneering autonomous driving and smart manufacturing.",
+    "about": "BMW offers thesis opportunities in autonomous driving perception, reinforcement learning for production optimization, digital twin simulation, and human-robot collaboration on the assembly line. Students work embedded in R&D teams at the Munich Research and Innovation Centre.",
+    "size": "10001+",
+    "domains": [
+      "Automotive",
+      "Manufacturing"
+    ]
+  },
+  {
+    "id": "company-18",
+    "name": "Armasuisse / IDSIA",
+    "description": "IDSIA (Dalle Molle Institute for Artificial Intelligence) is a Swiss AI research institute in Lugano, known for foundational work in deep learning, reinforcement learning, and robotics.",
+    "about": "IDSIA collaborates with Swiss and international universities on cutting-edge AI research. Thesis students contribute to published research in neural architecture search, RL for robotics, and bio-inspired computing. Co-founded by Jürgen Schmidhuber, inventor of LSTM.",
+    "size": "51-200",
+    "domains": [
+      "AI Research",
+      "Robotics"
+    ]
   }
 ]

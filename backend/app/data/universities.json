@@ -68,5 +68,12 @@
     "country": "CH",
     "domains": ["usi.ch"],
     "about": null
+  },
+    {
+    "id": "uni-11",
+    "name": "Technical University of Munich (TUM)",
+    "country": "DE",
+    "domains": ["usi.ch"],
+    "about":   "TUM is one of Europe's leading technical universities, consistently ranked #1 in Germany. Known for cutting-edge research in robotics, AI, autonomous systems, and engineering.Strong industry partnerships with BMW, Siemens, Airbus, and the Munich startup ecosystem."
   }
 ]

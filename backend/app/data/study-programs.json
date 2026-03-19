@@ -208,5 +208,12 @@
     "degree": "msc",
     "universityId": "uni-10",
     "about": null
+  },
+    {
+    "id": "program-31",
+    "name": "MSc Robotics, Cognition, Intelligence",
+    "degree": "msc",
+    "universityId": "uni-11",
+    "about": "A unique interdisciplinary program combining mechanical engineering, electrical engineering, and computer science. Students work on perception, planning, control, and learning for robotic systems. Thesis projects often involve industry partners like BMW, Airbus, or DLR."
   }
 ]

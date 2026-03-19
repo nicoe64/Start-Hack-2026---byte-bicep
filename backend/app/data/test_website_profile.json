@@ -1,17 +1,19 @@
 {
   "name": "Felix Boyke",
-  "email": "feb3560@thi.de",
+  "email": "felix.boyke@tum.de",
   "university": "Technische Hochschule Ingolstadt",
-  "university_id": "uni-10",
   "degree_level": "BSc",
-  "study_program": "Künstliche Intelligenz",
-  "study_program_id": "prog-28",
+  "study_program": "Artificial Intelligence",
   "field_interests": [
-    "Informatik & Wirtschaftsinformatik",
-    "Naturwissenschaften",
-    "Mathematik & Statistik"
+    "Artificial Intelligence",
+    "Computer Science"
   ],
-  "skills": [],
-  "about": "",
-  "end_date": "2027-02"
+  "skills": [
+    "Python",
+    "PyTorch",
+    "Deep Learning",
+    "Reinforcement Learning"
+  ],
+  "about": "BSc student in Artificial Intelligence with a strong interest in machine learning and intelligent systems.",
+  "end_date": "2027-06"
 }
