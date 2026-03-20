@@ -164,12 +164,10 @@ async def run_generate_pipeline(state: dict, session: dict) -> dict:
 # ── Post-Graph Chat ───────────────────────────────
 
 def _is_proposal_mode(message: str) -> bool:
-    """Detect if the message contains a proposal draft context prefix."""
     return message.strip().startswith("[Proposal draft context:")
 
 
 def _build_node_context(selected_nodes: list[str], graph: dict) -> str:
-    """Resolve selected node IDs to their full graph data."""
     if not selected_nodes:
         return ""
     lines = ["SELECTED NODES (user is asking about these):"]
@@ -201,10 +199,99 @@ def _build_node_context(selected_nodes: list[str], graph: dict) -> str:
 async def run_post_graph_turn(
     session: dict, message: str, selected_nodes: list[str]
 ) -> dict:
+    """
+    Handles chat after graph is generated.
+    - If intent is 'refine': update enriched profile and regenerate graph
+    - Otherwise: contextual LLM chat with node context
+    """
     graph = session.get("current_graph", {})
     website = session.get("website_profile", {})
     enriched = session.get("enriched_profile", {})
 
+    # ── Always run profile parser to capture new topic preferences ──
+    try:
+        parser_state = {
+            "session_id": "api", "node_results": [], "output": {},
+            "message": message,
+            "website_profile": website,
+            "enriched_profile": enriched,
+            "signals": session["signals"],
+            "intent": "", "chat_history": session.get("chat_history", []),
+            "response": "", "question_count": session.get("question_count", 3),
+        }
+        parsed = await ProfileParserNode.run(parser_state)
+        session["enriched_profile"] = parsed.get("enriched_profile", enriched)
+        enriched = session["enriched_profile"]
+    except Exception as e:
+        print(f"  [PostGraph ProfileParser ERROR: {e}]")
+
+    # ── Check intent via router ──
+    router_state = {
+        "session_id": "api", "node_results": [], "output": {},
+        "message": message,
+        "website_profile": website,
+        "enriched_profile": enriched,
+        "signals": session["signals"],
+        "intent": "", "chat_history": session.get("chat_history", []),
+        "response": "", "question_count": session.get("question_count", 3),
+        "current_graph": graph,
+    }
+    router_result = await IntentRouterNode.run(router_state)
+    intent = router_result["intent"]
+    print(f"  [PostGraph Intent: {intent}]")
+
+    # ── REFINE: regenerate graph with updated profile ──
+    if intent == "refine":
+        print("  [Refining — regenerating graph with new preferences...]")
+        gen_state = {
+            "session_id": "api", "node_results": [], "output": {},
+            "message": message,
+            "website_profile": website,
+            "enriched_profile": enriched,
+            "signals": session["signals"],
+            "intent": "generate",
+            "chat_history": session.get("chat_history", []),
+            "response": "", "question_count": session.get("question_count", 3),
+            "search_query": "", "candidates": {}, "filtered_candidates": {},
+            "graph_output": {}, "current_graph": graph,
+        }
+        result = await run_generate_pipeline(gen_state, session)
+        new_graph = result.get("graph_output", {})
+
+        if new_graph.get("paths"):
+            session["current_graph"] = new_graph
+            response = "I've updated your paths based on your new preferences. Here are your refined options."
+        else:
+            response = "I tried to refine your paths but couldn't find better matches. Try being more specific about your new direction."
+
+        return {"response": response, "intent": "refine", "graph_output": new_graph}
+
+    # ── GENERATE: explicit re-generation request ──
+    if intent == "generate":
+        print("  [Re-generating graph on request...]")
+        gen_state = {
+            "session_id": "api", "node_results": [], "output": {},
+            "message": message,
+            "website_profile": website,
+            "enriched_profile": enriched,
+            "signals": session["signals"],
+            "intent": "generate",
+            "chat_history": session.get("chat_history", []),
+            "response": "", "question_count": session.get("question_count", 3),
+            "search_query": "", "candidates": {}, "filtered_candidates": {},
+            "graph_output": {}, "current_graph": graph,
+        }
+        result = await run_generate_pipeline(gen_state, session)
+        new_graph = result.get("graph_output", {})
+        if new_graph.get("paths"):
+            session["current_graph"] = new_graph
+        return {
+            "response": "Here are your updated paths.",
+            "intent": "generate",
+            "graph_output": new_graph,
+        }
+
+    # ── DEFAULT: contextual LLM chat ──
     node_context = _build_node_context(selected_nodes, graph)
     is_proposal = _is_proposal_mode(message)
 
@@ -217,22 +304,14 @@ async def run_post_graph_turn(
 
     if is_proposal:
         system_prompt = """You are a research proposal writing assistant helping a thesis student.
-The user's message contains their current proposal draft context in [Proposal draft context: ...] and then their question or request.
-
-Your job:
-- Give specific, concrete suggestions for the section they're asking about
-- If they want an example, write one tailored to their profile and selected entities
-- If they want feedback, give direct, constructive critique
-- Keep responses focused and practical — under 200 words unless writing a full draft section
-- Use the student's profile, skills, and selected entities to personalize every response
-- Reference exact details: degree level, university, specific skills, entity names
-
-Never give generic advice. Always tie it back to this specific student and their specific situation."""
+Give specific, concrete suggestions for the section they're asking about.
+Always tie advice to the student's specific profile, skills, and selected entities.
+Keep responses focused and practical — under 200 words unless writing a full draft section.
+Do not use markdown headers or bullet points excessively — write in clear plain prose."""
     else:
         system_prompt = """You are a thesis advisor helping a student explore their academic and career options.
-The student has received a personalized graph of thesis paths and may be asking about specific nodes or paths.
-
-Be specific and reference the actual entities in the graph. Keep responses focused and under 200 words."""
+Be specific and reference the actual entities in the graph. Keep responses focused and under 200 words.
+Do not use markdown formatting — write in clear plain prose."""
 
     user_content = f"""Student profile: {json.dumps(website, ensure_ascii=False)}
 Enriched profile: {json.dumps(enriched, ensure_ascii=False)}
@@ -252,8 +331,8 @@ User message: {message}"""
         print(f"  [PostGraph LLM ERROR: {e}]")
         response = "I'm having trouble responding right now. Please try again."
 
-    intent = "proposal_assist" if is_proposal else ("node_detail" if node_context else "explore")
-    return {"response": response, "intent": intent}
+    intent_out = "proposal_assist" if is_proposal else ("node_detail" if node_context else "explore")
+    return {"response": response, "intent": intent_out}
 
 
 # ── Endpoints ─────────────────────────────────────
@@ -284,6 +363,7 @@ async def chat_endpoint(request: ChatRequest, req: Request):
             if result.get("response"):
                 session["chat_history"].append({"role": "assistant", "content": result["response"]})
 
+            # Update graph if pipeline returned a new one
             if result.get("graph_output") and result["graph_output"].get("paths"):
                 session["current_graph"] = result["graph_output"]
                 session["phase"] = "exploring"
