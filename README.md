@@ -1,8 +1,18 @@
 # byte-bicep — Start Hack 2026
 
-An AI-powered Thesis Journey built for the [Studyond](https://studyond.com) challenge at START Hack 2026.
+An AI-powered Thesis Journey built for the **Studyond** challenge at START Hack 2026.
 
 Students chat with an AI advisor that progressively learns about their interests, skills, and career goals through natural, LLM-driven dialogue. The advisor asks targeted follow-up questions based on what it already knows, building a rich student profile before generating a personalized, interactive graph of thesis pathways — combining matching topics, supervisors, companies, and industry experts, each scored with AI confidence ratings.
+
+## Team
+
+| GitHub | Role |
+|--------|------|
+| [MrFleix](https://github.com/MrFleix) | Backend, Architecture |
+| [Chipi8704](https://github.com/Chipi8704) | Frontend, Architecture |
+| [nicoe64](https://github.com/nicoe64) | Design |
+| [Metax0](https://github.com/Metax0) | Planning, General |
+
 
 ![Graph Overview](assets/graph_overview.png)
 
