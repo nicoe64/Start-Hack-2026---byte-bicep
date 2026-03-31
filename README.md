@@ -23,7 +23,7 @@ Students chat with an AI advisor that progressively learns about their interests
 ![Research Proposal Tool](assets/research_proposal.png)
 
 ### Prototype (Figma)
-[![Figma Prototype](assets/figma_screenshot.png)](https://www.figma.com/file/abc123/Your-Project-Name)
+[![Figma Prototype](assets/figma_prototype.png)](https://www.figma.com/file/abc123/Your-Project-Name)
 
 
 **Key features:**
