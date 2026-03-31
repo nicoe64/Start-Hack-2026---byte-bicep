@@ -14,11 +14,11 @@ Students chat with an AI advisor that progressively learns about their interests
 | [Metax0](https://github.com/Metax0) | Planning, General |
 
 
-![Graph Overview](assets/graph_overview.png)
+## Project Previews
 
-From the graph, students can explore their options in depth, select entities that interest them, and draft research proposals with AI assistance. A profile dashboard provides ranked statistics across companies, supervisors, and thesis topics based on compatibility with the student's profile.
-
-![Research Proposal Tool](assets/research_proposal.png)
+| Graph Overview | Research Proposal Tool | Prototype (Figma) |
+|----------------|----------------------|------------------|
+| ![Graph Overview](assets/graph_overview.png) | ![Research Proposal Tool](assets/research_proposal.png) | [![Figma Prototype](assets/figma_prototype.png)](https://www.figma.com/proto/GVtEYTsJ4MJZwFkKJWoLC0/Hackathon-2026?node-id=89-10&t=w6VbMVLPIPmx9BBo-1&scaling=scale-down&content-scaling=fixed&page-id=89%3A8&starting-point-node-id=89%3A10) |
 
 **Key features:**
 - LLM-driven conversational advisor that progressively builds a student profile through adaptive dialogue
