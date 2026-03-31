@@ -23,8 +23,9 @@ Students chat with an AI advisor that progressively learns about their interests
 ![Research Proposal Tool](assets/research_proposal.png)
 
 ### Prototype (Figma)
-[![Figma Prototype](assets/figma_prototype.png)](https://www.figma.com/file/abc123/Your-Project-Name)
-
+<a href="https://www.figma.com/proto/GVtEYTsJ4MJZwFkKJWoLC0/Hackathon-2026?node-id=89-10&t=w6VbMVLPIPmx9BBo-1&scaling=scale-down&content-scaling=fixed&page-id=89%3A8&starting-point-node-id=89%3A10" target="_blank">
+  <img src="assets/figma_prototype.png" alt="Figma Prototype" width="400"/>
+</a>
 
 **Key features:**
 - LLM-driven conversational advisor that progressively builds a student profile through adaptive dialogue
