@@ -10,7 +10,7 @@ Students chat with an AI advisor that progressively learns about their interests
 |--------|------|
 | [MrFleix](https://github.com/MrFleix) | Backend, Architecture |
 | [Chipi8704](https://github.com/Chipi8704) | Frontend, Architecture |
-| [nicoe64](https://github.com/nicoe64) | Planning, Design,  |
+| [nicoe64](https://github.com/nicoe64) | Planning, Design  |
 | [Metax0](https://github.com/Metax0) | Planning, General |
 
 
